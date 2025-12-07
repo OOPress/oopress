@@ -57,6 +57,7 @@ This project will provide:
 
 ## 📦 Planned Features
 
+```
 | Feature | Goal |
 |--------|------|
 | Plugin Architecture | Lightweight, event-driven, isolated |
@@ -67,22 +68,38 @@ This project will provide:
 | CLI Tools | Scaffolding, migrations, debugging |
 | API Mode | Optional fully headless mode |
 | Admin UI | Modern interface with modular structure |
+```
 
 ---
 
 ## 📁 Repository Structure (proposed)
 
+```
 /oopress
-├─ /core             # Core framework components
-├─ /modules          # Built-in modules
-├─ /themes           # Default theme(s)
-├─ /plugins          # Extendable plugins/packages
-├─ /public           # Web root / index.php
-├─ /config           # Config & environment definitions
-├─ /storage          # Logs, cache, uploads, temp
-├─ /tests            # PHPUnit tests
-├─ composer.json     # Ship as a package
-└─ README.md
+ ├─ /assets/images/logo/
+ ├─ /config
+ ├─ /docs
+ │   ├─ ROADMAP.md
+ │   └─ ARCHITECTURE.md
+ ├─ /public
+ ├─ /src
+ │   ├─ /Core
+ │   │   └─ Application.php
+ │   ├─ /Modules
+ │   ├─ /Themes
+ │   ├─ /Plugins
+ │   └─ bootstrap.php
+ ├─ /storage
+ ├─ /tests
+ │   └─ ExampleTest.php
+ ├─ composer.json
+ ├─ .env.example
+ ├─ .gitignore
+ ├─ README.md
+ ├─ LICENSE
+ ├─ NOTICE
+ └─ vendor
+```
 
 ---
 
