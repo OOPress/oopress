@@ -1,3 +1,5 @@
+![OOPress Logo](assets/images/oopress_logo.png)
+
 # The OOPress Project
 
 **OOPress** is a modern, object-oriented, extensible CMS platform inspired by the strengths of WordPress and XOOPS — but architected from the ground up for maintainability, modularity, scalability, and clean coding standards.
