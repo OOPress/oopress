@@ -1,4 +1,4 @@
-![OOPress Logo](assets/images/oopress_logo.png)
+![OOPress Logo](assets/images/oopress_logo_xs.png)
 
 # The OOPress Project
 
