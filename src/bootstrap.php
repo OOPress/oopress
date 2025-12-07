@@ -1,7 +1,8 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
 
-use OOPress\Core\Application;
+use OOPress\Core\Config;
 
-$app = new Application();
-$app->runWeb();
+function config(string $key, mixed $default = null): mixed
+{
+    return Config::get($key, $default);
+}
