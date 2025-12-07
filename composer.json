@@ -1,0 +1,17 @@
+{
+  "name": "oopress/oopress",
+  "description": "OOPress CMS - Modern object-oriented PHP CMS",
+  "type": "project",
+  "autoload": {
+    "psr-4": {
+      "OOPress\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=8.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.0"
+  }
+}
+
