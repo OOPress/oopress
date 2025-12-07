@@ -28,6 +28,7 @@ This document describes the core architectural principles, design patterns, and 
 
 ## 📂 Folder Structure
 
+```
 /oopress
 ├─ /docs            # Project documentation (roadmap, architecture, guides)
 ├─ /src             # Core source code (PSR-4)
@@ -37,6 +38,7 @@ This document describes the core architectural principles, design patterns, and 
 ├─ README.md
 ├─ LICENSE
 └─ NOTICE
+```
 
 - `/src/Core` → Base classes (Application, Router, EventDispatcher, ServiceProvider)
 - `/bootstrap.php` → Single entry point for bootstrapping CLI or web
