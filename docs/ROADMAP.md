@@ -23,7 +23,7 @@ OOPress is a modern, object-oriented, extensible CMS platform designed to combin
 - [x] Basic folder structure (`/src`, `/tests`, `/docs`)
 - [x] Initial `bootstrap.php`
 - [ ] Hello world CLI command
-- [ ] Initial README and LICENSE (Apache 2.0)
+- [x] Initial README and LICENSE (Apache 2.0)
 
 ---
 
