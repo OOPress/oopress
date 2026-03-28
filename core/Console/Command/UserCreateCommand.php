@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace OOPress\Console\Command;
 
 use Doctrine\DBAL\Connection;
+use OOPress\Security\PasswordHasher;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
  * UserCreateCommand — Creates a new user.
@@ -24,7 +24,7 @@ class UserCreateCommand extends Command
     
     public function __construct(
         private readonly Connection $connection,
-        private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly PasswordHasher $passwordHasher,
     ) {
         parent::__construct();
     }
@@ -80,17 +80,29 @@ class UserCreateCommand extends Command
         }
         
         // Validate password strength
-        if (strlen($password) < 8) {
-            $io->error('Password must be at least 8 characters.');
+        $strengthErrors = $this->passwordHasher->validateStrength($password, [
+            'min_length' => 8,
+            'require_uppercase' => true,
+            'require_lowercase' => true,
+            'require_number' => true,
+        ]);
+        
+        if (!empty($strengthErrors)) {
+            foreach ($strengthErrors as $error) {
+                $io->error($error);
+            }
+            return Command::FAILURE;
+        }
+        
+        // Hash password
+        try {
+            $hashedPassword = $this->passwordHasher->hash($password);
+        } catch (\InvalidArgumentException $e) {
+            $io->error($e->getMessage());
             return Command::FAILURE;
         }
         
         // Create user
-        $hashedPassword = $this->passwordHasher->hashPassword(
-            new AdminUser(),
-            $password
-        );
-        
         $roles = ['ROLE_' . strtoupper($role), 'ROLE_USER'];
         
         $this->connection->insert('oop_users', [
