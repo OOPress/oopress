@@ -1,0 +1,17 @@
+name: Default
+description: Default OOPress theme
+version: 1.0.0
+
+regions:
+  header:
+    label: "Header"
+    description: "Site header region"
+  content:
+    label: "Content"
+    description: "Main content area"
+  sidebar:
+    label: "Sidebar"
+    description: "Sidebar region"
+  footer:
+    label: "Footer"
+    description: "Site footer region"
