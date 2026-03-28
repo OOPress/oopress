@@ -99,6 +99,16 @@ class TwigEngine implements TemplateEngineInterface
                 }
             });
         }
+
+        // In registerCoreFunctions()
+        $this->registerFunction('assets', function () {
+            return $this->assetManager->getAssetTags();
+        });
+
+        $this->registerFunction('asset_url', function (string $path) {
+            return '/assets/' . ltrim($path, '/');
+        });
+
     }
     
     /**
@@ -131,6 +141,11 @@ class TwigEngine implements TemplateEngineInterface
             }
             throw $e;
         }
+
+
+        // In addCoreGlobals()
+        $this->addGlobal('self_host_assets', $this->config['self_host_assets'] ?? true);
+
     }
     
     /**
