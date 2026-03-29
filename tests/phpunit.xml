@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
+         bootstrap="../vendor/autoload.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache">
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>Unit</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory>Integration</directory>
+        </testsuite>
+        <testsuite name="All">
+            <directory>.</directory>
+        </testsuite>
+    </testsuites>
+    
+    <source>
+        <include>
+            <directory suffix=".php">../core</directory>
+        </include>
+        <exclude>
+            <directory suffix=".php">../core/Migration/Migrations</directory>
+            <directory suffix=".php">../core/Console/Command</directory>
+            <directory suffix=".php">../core/Installer/Controller</directory>
+        </exclude>
+    </source>
+    
+    <php>
+        <env name="APP_ENV" value="test"/>
+        <env name="APP_DEBUG" value="true"/>
+    </php>
+    
+    <coverage>
+        <report>
+            <html outputDirectory="coverage" />
+            <text outputFile="coverage.txt" />
+            <clover outputFile="clover.xml" />
+        </report>
+    </coverage>
+</phpunit>
