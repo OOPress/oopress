@@ -1,0 +1,137 @@
+{% extends 'install/base.html.twig' %}
+
+{% block content %}
+<div class="install-database">
+    <h1>Database Configuration</h1>
+    
+    <p>Configure your database connection. OOPress will create the necessary tables.</p>
+    
+    {% if errors %}
+    <div class="error-message">
+        <strong>Error:</strong> {{ errors|join(', ') }}
+    </div>
+    {% endif %}
+    
+    <form method="POST" class="install-form">
+        <div class="form-group">
+            <label for="db_driver">Database Type</label>
+            <select name="db_driver" id="db_driver" required>
+                {% for value, label in drivers %}
+                <option value="{{ value }}" {% if saved.db_driver == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="db_host">Database Host</label>
+            <input type="text" name="db_host" id="db_host" value="{{ saved.db_host|default('localhost') }}" required>
+            <small>Usually "localhost" or an IP address</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="db_port">Database Port</label>
+            <input type="number" name="db_port" id="db_port" value="{{ saved.db_port|default(3306) }}" required>
+            <small>MySQL: 3306, PostgreSQL: 5432</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="db_name">Database Name</label>
+            <input type="text" name="db_name" id="db_name" value="{{ saved.db_name }}" required>
+            <small>The name of your database</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="db_user">Database Username</label>
+            <input type="text" name="db_user" id="db_user" value="{{ saved.db_user }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="db_password">Database Password</label>
+            <input type="password" name="db_password" id="db_password" value="{{ saved.db_password }}">
+            <small>Leave empty if no password</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="db_prefix">Table Prefix</label>
+            <input type="text" name="db_prefix" id="db_prefix" value="{{ saved.db_prefix|default('oop_') }}">
+            <small>Prefix for all OOPress tables (recommended for shared databases)</small>
+        </div>
+        
+        <div class="install-actions">
+            <a href="/install/requirements" class="button">Back</a>
+            <button type="submit" class="button button-primary">Continue</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.install-form {
+    max-width: 500px;
+    margin: 2rem auto;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.install-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+.button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: #6c757d;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.button-primary {
+    background: #28a745;
+}
+
+.button-primary:hover {
+    background: #218838;
+}
+</style>
+{% endblock %}

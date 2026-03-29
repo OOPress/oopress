@@ -1,0 +1,125 @@
+{% extends 'install/base.html.twig' %}
+
+{% block content %}
+<div class="install-welcome">
+    <h1>Welcome to OOPress</h1>
+    
+    <div class="install-logo">
+        <img src="/assets/images/oopress-logo.svg" alt="OOPress">
+    </div>
+    
+    <p class="lead">
+        Thank you for choosing OOPress — the modern PHP CMS that puts transparency first.
+    </p>
+    
+    <div class="install-features">
+        <div class="feature">
+            <h3>🔒 Transparent & Secure</h3>
+            <p>Your admin panel always tells the truth about what's running and its health status.</p>
+        </div>
+        <div class="feature">
+            <h3>📦 Module Ready</h3>
+            <p>Extend your site with modules — API stability guaranteed for the life of a major version.</p>
+        </div>
+        <div class="feature">
+            <h3>🌍 GDPR Compliant</h3>
+            <p>Self-host all assets and keep your data where it belongs — on your server.</p>
+        </div>
+        <div class="feature">
+            <h3>🚀 Modern Stack</h3>
+            <p>Built with PHP 8.2, Symfony components, and modern best practices.</p>
+        </div>
+    </div>
+    
+    <div class="install-info">
+        <h3>Before You Begin</h3>
+        <ul>
+            <li>✓ PHP 8.2 or higher</li>
+            <li>✓ MySQL 5.7+ / PostgreSQL / SQLite</li>
+            <li>✓ Write permissions for <code>var/</code> and <code>files/</code> directories</li>
+        </ul>
+    </div>
+    
+    <div class="install-actions">
+        <a href="/install/requirements" class="button button-primary">Start Installation</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.install-welcome {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.install-logo {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.install-logo img {
+    max-width: 200px;
+}
+
+.lead {
+    font-size: 1.2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.install-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.feature {
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+.feature h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.install-info {
+    background: #e3f2fd;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+}
+
+.install-info code {
+    background: #fff;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+}
+
+.install-actions {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.button-primary {
+    background: #28a745;
+}
+
+.button-primary:hover {
+    background: #218838;
+}
+</style>
+{% endblock %}
