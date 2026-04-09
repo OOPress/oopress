@@ -1,0 +1,23 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$command = $argv[1] ?? 'help';
+
+match($command) {
+    'serve' => system('php -S localhost:8080 -t public'),
+    'make:model' => createModel($argv[2] ?? ''),
+    'make:controller' => createController($argv[2] ?? ''),
+    'db:migrate' => runMigrations(),
+    'cache:clear' => cleanCache(),
+    default => showHelp()
+};
+
+function createModel(string $name) {
+    $content = "<?php\n\nnamespace OOPress\\Models;\n\nuse OOPress\\Core\\Database\\Model;\n\nclass {$name} extends Model {\n    protected static string \$table = '" . strtolower($name) . "s';\n}\n";
+    file_put_contents(__DIR__ . "/../src/Models/{$name}.php", $content);
+    echo "✓ Created model: {$name}\n";
+}
+
+// ... other helper functions

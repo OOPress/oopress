@@ -1,39 +1,7 @@
-# OOPress .gitignore
-
-# Runtime data — never committed
-/var/cache/
-/var/log/
-/var/sessions/
-
-# User uploads
-/files/
-
-# Site credentials
-/settings.php
-
-# Composer vendor — committed in zip releases, not in repo
 /vendor/
-
-# Composer local files
-composer.phar
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Editor files
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Environment
 .env
-.env.local
-
-# PHP
-*.phar
-
-# Build artifacts
-/dist/
-/build/
+/storage/logs/
+/storage/cache/
+.idea/
+.DS_Store
+composer.lock
