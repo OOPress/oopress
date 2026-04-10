@@ -17,6 +17,25 @@ abstract class Model
     protected array $casts = [];
     protected array $relations = [];
     
+    /**
+     * Get the database connection
+     */
+    public static function getDB(): Medoo
+    {
+        return static::$db;
+    }
+    
+    /**
+     * Get the table name
+     */
+    public static function getTable(): string
+    {
+        return static::$table;
+    }
+    
+    /**
+     * Set database connection for all models
+     */
     public static function setDB(Medoo $db): void
     {
         static::$db = $db;
@@ -180,18 +199,7 @@ abstract class Model
     /**
      * Convert to array
      */
-    /*public function toArray(): array
-    {
-        $attributes = $this->attributes;
-        
-        foreach ($this->hidden as $hidden) {
-            unset($attributes[$hidden]);
-        }
-        
-        return $attributes;
-    }*/
-
-        // Add relationship methods
+    // Add relationship methods
     public function belongsTo(string $related, string $foreignKey = null): ?Model
     {
         $foreignKey = $foreignKey ?? strtolower(class_basename($related)) . '_id';

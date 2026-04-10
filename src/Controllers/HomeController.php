@@ -9,7 +9,7 @@ use OOPress\Http\Request;
 use OOPress\Http\Response;
 use League\Plates\Engine;
 
-class PostController
+class HomeController
 {
     private Engine $view;
     
@@ -18,9 +18,8 @@ class PostController
         $this->view = new Engine(__DIR__ . '/../../views');
     }
     
-    public function home(Request $request): Response
+    public function index(Request $request): Response
     {
-        // Simple query without pagination for now
         $posts = Post::where(['status' => 'published']);
         
         $content = $this->view->render('home', [
@@ -33,10 +32,10 @@ class PostController
     
     public function show(Request $request): Response
     {
-        $slug = $request->attribute('slug');
-        $post = Post::firstWhere(['slug' => $slug, 'status' => 'published']);
+        $id = $request->attribute('id');
+        $post = Post::find($id);
         
-        if (!$post) {
+        if (!$post || $post->status !== 'published') {
             return new Response($this->view->render('errors/404'), 404);
         }
         

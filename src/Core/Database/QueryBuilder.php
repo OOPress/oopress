@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace OOPress\Core\Database;
 
+use Medoo\Medoo;
+
 class QueryBuilder
 {
+    private Medoo $db;
     private string $modelClass;
     private array $conditions = [];
     private array $orderBy = [];
@@ -15,6 +18,8 @@ class QueryBuilder
     public function __construct(string $modelClass)
     {
         $this->modelClass = $modelClass;
+        // Get database connection from the model
+        $this->db = $modelClass::getDB();
     }
     
     public function where(array $conditions): self
@@ -43,7 +48,7 @@ class QueryBuilder
     
     public function get(): array
     {
-        $query = array_merge($this->conditions);
+        $query = $this->conditions;
         
         if (!empty($this->orderBy)) {
             $query['ORDER'] = $this->orderBy;
@@ -57,7 +62,11 @@ class QueryBuilder
             $query['LIMIT'] = [$this->offset, $this->limit];
         }
         
-        return $this->modelClass::where($query);
+        $results = $this->db->select($this->modelClass::getTable(), '*', $query);
+        
+        return array_map(function($data) {
+            return new $this->modelClass($data);
+        }, $results);
     }
     
     public function first(): ?object
@@ -72,8 +81,7 @@ class QueryBuilder
         $this->limit($perPage);
         $this->offset(($page - 1) * $perPage);
         
-        $model = new $this->modelClass();
-        $total = static::$db->count($model::$table, $this->conditions);
+        $total = $this->db->count($this->modelClass::getTable(), $this->conditions);
         
         return [
             'data' => $this->get(),
