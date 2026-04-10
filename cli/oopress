@@ -1,23 +1,148 @@
 #!/usr/bin/env php
 <?php
 
+declare(strict_types=1);
+
 require __DIR__ . '/../vendor/autoload.php';
 
 $command = $argv[1] ?? 'help';
 
 match($command) {
-    'serve' => system('php -S localhost:8080 -t public'),
-    'make:model' => createModel($argv[2] ?? ''),
-    'make:controller' => createController($argv[2] ?? ''),
-    'db:migrate' => runMigrations(),
-    'cache:clear' => cleanCache(),
+    'serve' => serve(),
+    'make:model' => makeModel($argv[2] ?? ''),
+    'make:controller' => makeController($argv[2] ?? ''),
+    'make:middleware' => makeMiddleware($argv[2] ?? ''),
+    'cache:clear' => cacheClear(),
+    'route:list' => routeList(),
     default => showHelp()
 };
 
-function createModel(string $name) {
-    $content = "<?php\n\nnamespace OOPress\\Models;\n\nuse OOPress\\Core\\Database\\Model;\n\nclass {$name} extends Model {\n    protected static string \$table = '" . strtolower($name) . "s';\n}\n";
-    file_put_contents(__DIR__ . "/../src/Models/{$name}.php", $content);
-    echo "✓ Created model: {$name}\n";
+function serve(): void
+{
+    echo "Starting OOPress development server...\n";
+    system('php -S localhost:8080 -t public');
 }
 
-// ... other helper functions
+function makeModel(string $name): void
+{
+    if (empty($name)) {
+        echo "❌ Please provide a model name\n";
+        return;
+    }
+    
+    $content = "<?php\n\ndeclare(strict_types=1);\n\nnamespace OOPress\\Models;\n\nuse OOPress\\Core\\Database\Model;\n\nclass {$name} extends Model\n{\n    protected static string \$table = '" . strtolower($name) . "s';\n    \n    protected array \$hidden = [];\n    \n    protected array \$casts = [\n        'id' => 'int',\n    ];\n}\n";
+    
+    $path = __DIR__ . "/../src/Models/{$name}.php";
+    file_put_contents($path, $content);
+    echo "✅ Created model: app/Models/{$name}.php\n";
+}
+
+function makeController(string $name): void
+{
+    if (empty($name)) {
+        echo "❌ Please provide a controller name\n";
+        return;
+    }
+    
+    $content = "<?php\n\ndeclare(strict_types=1);\n\nnamespace OOPress\\Controllers;\n\nuse OOPress\\Http\\Request;\nuse OOPress\\Http\\Response;\n\nclass {$name}\n{\n    public function index(Request \$request): Response\n    {\n        return new Response('{$name} index page');\n    }\n    \n    public function show(Request \$request, int \$id): Response\n    {\n        return new Response('Showing item ' . \$id);\n    }\n}\n";
+    
+    $path = __DIR__ . "/../src/Controllers/{$name}.php";
+    file_put_contents($path, $content);
+    echo "✅ Created controller: app/Controllers/{$name}.php\n";
+}
+
+function makeMiddleware(string $name): void
+{
+    if (empty($name)) {
+        echo "❌ Please provide a middleware name\n";
+        return;
+    }
+    
+    $content = "<?php\n\ndeclare(strict_types=1);\n\nnamespace OOPress\\Http\\Middleware;\n\nuse OOPress\\Http\\Request;\nuse OOPress\\Http\\Response;\nuse OOPress\\Http\\MiddlewareInterface;\n\nclass {$name} implements MiddlewareInterface\n{\n    public function process(Request \$request, callable \$next): Response\n    {\n        // Add your middleware logic here\n        \n        return \$next(\$request);\n    }\n}\n";
+    
+    $path = __DIR__ . "/../src/Http/Middleware/{$name}.php";
+    if (!is_dir(__DIR__ . '/../src/Http/Middleware')) {
+        mkdir(__DIR__ . '/../src/Http/Middleware', 0755, true);
+    }
+    file_put_contents($path, $content);
+    echo "✅ Created middleware: app/Http/Middleware/{$name}.php\n";
+}
+
+function cacheClear(): void
+{
+    $cachePath = __DIR__ . '/../storage/cache';
+    if (is_dir($cachePath)) {
+        $files = glob($cachePath . '/*');
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
+        echo "✅ Cache cleared\n";
+    } else {
+        echo "ℹ️  Cache directory not found\n";
+    }
+}
+
+function routeList(): void
+{
+    $routesFile = __DIR__ . '/../config/routes.php';
+    if (!file_exists($routesFile)) {
+        echo "❌ routes.php not found\n";
+        return;
+    }
+    
+    // Mock router to collect routes
+    $router = new class {
+        public array $routes = [];
+        public function get(string $path, $handler): void {
+            $this->routes['GET'][$path] = $handler;
+        }
+        public function post(string $path, $handler): void {
+            $this->routes['POST'][$path] = $handler;
+        }
+        public function put(string $path, $handler): void {
+            $this->routes['PUT'][$path] = $handler;
+        }
+        public function delete(string $path, $handler): void {
+            $this->routes['DELETE'][$path] = $handler;
+        }
+    };
+    
+    require $routesFile;
+    
+    echo "\n📋 Registered Routes:\n\n";
+    foreach ($router->routes as $method => $paths) {
+        foreach ($paths as $path => $handler) {
+            $handlerStr = is_array($handler) ? implode('@', $handler) : (is_string($handler) ? $handler : 'Closure');
+            echo sprintf("  %-7s %-30s %s\n", $method, $path, $handlerStr);
+        }
+    }
+    echo "\n";
+}
+
+function showHelp(): void
+{
+    echo <<<HELP
+
+OOPress CLI Tool - Modern PHP CMS
+
+Usage:
+  php cli/oopress [command]
+
+Commands:
+  serve              Start development server on localhost:8080
+  make:model <name>  Create a new model class
+  make:controller <name> Create a new controller class
+  make:middleware <name> Create a new middleware class
+  cache:clear        Clear all cached files
+  route:list         List all registered routes
+  help               Show this help message
+
+Examples:
+  php cli/oopress serve
+  php cli/oopress make:model Post
+  php cli/oopress make:controller PostController
+
+HELP;
+}

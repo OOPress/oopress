@@ -1,12 +1,10 @@
 <?php
 
-$container = require __DIR__ . '/../bootstrap/autoload.php';
+declare(strict_types=1);
 
 use OOPress\Http\Request;
-use OOPress\Core\Router;
+
+$app = require __DIR__ . '/../bootstrap/app.php';
 
 $request = Request::fromGlobals();
-$router = $container->make(Router::class);
-
-$response = $router->dispatch($request);
-$response->send();
+$app->run($request);
