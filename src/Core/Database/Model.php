@@ -15,18 +15,13 @@ abstract class Model
     protected array $original = [];
     protected array $hidden = [];
     protected array $casts = [];
+    protected array $relations = [];
     
-    /**
-     * Set database connection for all models
-     */
     public static function setDB(Medoo $db): void
     {
         static::$db = $db;
     }
     
-    /**
-     * Create new model instance
-     */
     public function __construct(array $attributes = [])
     {
         $this->fill($attributes);
@@ -185,7 +180,7 @@ abstract class Model
     /**
      * Convert to array
      */
-    public function toArray(): array
+    /*public function toArray(): array
     {
         $attributes = $this->attributes;
         
@@ -194,6 +189,54 @@ abstract class Model
         }
         
         return $attributes;
+    }*/
+
+        // Add relationship methods
+    public function belongsTo(string $related, string $foreignKey = null): ?Model
+    {
+        $foreignKey = $foreignKey ?? strtolower(class_basename($related)) . '_id';
+        return $related::find($this->$foreignKey);
+    }
+    
+    public function hasMany(string $related, string $foreignKey = null): array
+    {
+        $foreignKey = $foreignKey ?? strtolower(class_basename(static::class)) . '_id';
+        return $related::where([$foreignKey => $this->id]);
+    }
+    
+    public static function with(string $relation, array $conditions = []): array
+    {
+        $models = static::where($conditions);
+        
+        foreach ($models as $model) {
+            $model->loadRelation($relation);
+        }
+        
+        return $models;
+    }
+    
+    protected function loadRelation(string $relation): void
+    {
+        if (method_exists($this, $relation)) {
+            $this->relations[$relation] = $this->$relation();
+        }
+    }
+    
+    public function toArray(): array
+    {
+        $attributes = $this->attributes;
+        
+        foreach ($this->hidden as $hidden) {
+            unset($attributes[$hidden]);
+        }
+        
+        return array_merge($attributes, $this->relations);
+    }
+    
+    // Add query builder methods
+    public static function query(): QueryBuilder
+    {
+        return new QueryBuilder(static::class);
     }
     
     /**

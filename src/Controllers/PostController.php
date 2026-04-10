@@ -4,28 +4,37 @@ declare(strict_types=1);
 
 namespace OOPress\Controllers;
 
+use OOPress\Models\Post;
 use OOPress\Http\Request;
 use OOPress\Http\Response;
+use League\Plates\Engine;
 
 class PostController
 {
+    private Engine $view;
+    
+    public function __construct()
+    {
+        $this->view = new Engine(__DIR__ . '/../../views');
+    }
+    
     public function home(Request $request): Response
     {
-        $lang = $request->attribute('lang');
+        $page = (int)($request->input('page') ?? 1);
+        $posts = Post::query()
+            ->where(['status' => 'published'])
+            ->orderBy('published_at', 'DESC')
+            ->paginate(10, $page);
         
-        // Set language if provided in URL
-        if ($lang && function_exists('set_locale')) {
-            set_locale($lang);
-        }
-        
-        $content = '<h1>' . __('Welcome to OOPress') . '</h1>';
-        $content .= '<p>' . __('Current language: {{lang}}', 'default', ['lang' => get_locale()]) . '</p>';
-        $content .= '<ul>';
-        $content .= '<li><a href="/about">' . __('About') . '</a></li>';
-        $content .= '<li><a href="/en/about">English About</a></li>';
-        $content .= '<li><a href="/es/about">Spanish About</a></li>';
-        $content .= '<li><a href="/fr/about">French About</a></li>';
-        $content .= '</ul>';
+        $content = $this->view->render('home', [
+            'posts' => $posts['data'],
+            'pagination' => [
+                'current' => $posts['current_page'],
+                'last' => $posts['last_page'],
+                'total' => $posts['total']
+            ],
+            'title' => __('Welcome to OOPress')
+        ]);
         
         return new Response($content);
     }
@@ -33,35 +42,18 @@ class PostController
     public function show(Request $request): Response
     {
         $slug = $request->attribute('slug');
-        $lang = $request->attribute('lang');
+        $post = Post::firstWhere(['slug' => $slug, 'status' => 'published']);
         
-        if ($lang && function_exists('set_locale')) {
-            set_locale($lang);
+        if (!$post) {
+            return new Response($this->view->render('errors/404'), 404);
         }
         
-        // Simulate post not found
-        if ($slug === 'not-found') {
-            return new Response('<h1>' . __('Post not found') . '</h1>', 404);
-        }
+        $post->incrementViews();
         
-        $content = '<h1>Post: ' . htmlspecialchars($slug) . '</h1>';
-        $content .= '<p>' . __('by {{author}}', 'default', ['author' => 'OOPress']) . '</p>';
-        $content .= '<p><a href="/">' . __('Home') . '</a></p>';
-        
-        return new Response($content);
-    }
-    
-    public function about(Request $request): Response
-    {
-        $lang = $request->attribute('lang');
-        
-        if ($lang && function_exists('set_locale')) {
-            set_locale($lang);
-        }
-        
-        $content = '<h1>' . __('About OOPress') . '</h1>';
-        $content .= '<p>A lean, modern PHP CMS with i18n support.</p>';
-        $content .= '<p><a href="/">' . __('Home') . '</a></p>';
+        $content = $this->view->render('post/single', [
+            'post' => $post,
+            'title' => $post->title
+        ]);
         
         return new Response($content);
     }

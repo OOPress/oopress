@@ -5,22 +5,35 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
+// Load environment for CLI
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->load();
+
 $command = $argv[1] ?? 'help';
+$arg2 = $argv[2] ?? '';
 
 match($command) {
     'serve' => serve(),
-    'make:model' => makeModel($argv[2] ?? ''),
-    'make:controller' => makeController($argv[2] ?? ''),
-    'make:middleware' => makeMiddleware($argv[2] ?? ''),
+    'make:model' => makeModel($arg2),
+    'make:controller' => makeController($arg2),
+    'make:middleware' => makeMiddleware($arg2),
+    'make:migration' => makeMigration($arg2),
+    'migrate' => migrate(),
+    'migrate:rollback' => migrateRollback($arg2),
+    'migrate:fresh' => migrateFresh(),
+    'migrate:status' => migrateStatus(),
     'cache:clear' => cacheClear(),
     'route:list' => routeList(),
+    'db:seed' => dbSeed(),
     default => showHelp()
 };
 
 function serve(): void
 {
-    echo "Starting OOPress development server...\n";
-    system('php -S localhost:8080 -t public');
+    echo "🚀 Starting OOPress development server...\n";
+    echo "📍 http://localhost:8085\n";
+    echo "Press Ctrl+C to stop.\n\n";
+    system('php -S localhost:8085 -t public');
 }
 
 function makeModel(string $name): void
@@ -30,11 +43,11 @@ function makeModel(string $name): void
         return;
     }
     
-    $content = "<?php\n\ndeclare(strict_types=1);\n\nnamespace OOPress\\Models;\n\nuse OOPress\\Core\\Database\Model;\n\nclass {$name} extends Model\n{\n    protected static string \$table = '" . strtolower($name) . "s';\n    \n    protected array \$hidden = [];\n    \n    protected array \$casts = [\n        'id' => 'int',\n    ];\n}\n";
+    $content = "<?php\n\ndeclare(strict_types=1);\n\nnamespace OOPress\\Models;\n\nuse OOPress\\Core\\Database\\Model;\n\nclass {$name} extends Model\n{\n    protected static string \$table = '" . strtolower($name) . "s';\n    \n    protected array \$hidden = [];\n    \n    protected array \$casts = [\n        'id' => 'int',\n    ];\n}\n";
     
     $path = __DIR__ . "/../src/Models/{$name}.php";
     file_put_contents($path, $content);
-    echo "✅ Created model: app/Models/{$name}.php\n";
+    echo "✅ Created model: src/Models/{$name}.php\n";
 }
 
 function makeController(string $name): void
@@ -48,7 +61,7 @@ function makeController(string $name): void
     
     $path = __DIR__ . "/../src/Controllers/{$name}.php";
     file_put_contents($path, $content);
-    echo "✅ Created controller: app/Controllers/{$name}.php\n";
+    echo "✅ Created controller: src/Controllers/{$name}.php\n";
 }
 
 function makeMiddleware(string $name): void
@@ -65,7 +78,152 @@ function makeMiddleware(string $name): void
         mkdir(__DIR__ . '/../src/Http/Middleware', 0755, true);
     }
     file_put_contents($path, $content);
-    echo "✅ Created middleware: app/Http/Middleware/{$name}.php\n";
+    echo "✅ Created middleware: src/Http/Middleware/{$name}.php\n";
+}
+
+function makeMigration(string $name): void
+{
+    if (empty($name)) {
+        echo "❌ Please provide a migration name\n";
+        return;
+    }
+    
+    $timestamp = date('Ymd_His');
+    $filename = "{$timestamp}_{$name}.php";
+    $content = "<?php\n\nuse Medoo\\Medoo;\n\nreturn new class {\n    public function up(Medoo \$db): void\n    {\n        // Add your migration code here\n        // Example: \$db->query(\"CREATE TABLE ...\");\n    }\n    \n    public function down(Medoo \$db): void\n    {\n        // Add your rollback code here\n        // Example: \$db->query(\"DROP TABLE ...\");\n    }\n};\n";
+    
+    $path = __DIR__ . "/../database/migrations/{$filename}";
+    if (!is_dir(__DIR__ . '/../database/migrations')) {
+        mkdir(__DIR__ . '/../database/migrations', 0755, true);
+    }
+    file_put_contents($path, $content);
+    echo "✅ Created migration: database/migrations/{$filename}\n";
+}
+
+function migrate(): void
+{
+    echo "📦 Running migrations...\n\n";
+    
+    if (!file_exists(__DIR__ . '/../config/database.php')) {
+        echo "❌ Database config not found. Please create config/database.php\n";
+        return;
+    }
+    
+    $db = require __DIR__ . '/../config/database.php';
+    
+    // Test database connection
+    try {
+        $db->query("SELECT 1");
+        echo "✓ Database connection successful\n\n";
+    } catch (Exception $e) {
+        echo "❌ Database connection failed: " . $e->getMessage() . "\n";
+        echo "Please check your .env database settings\n";
+        return;
+    }
+    
+    $migration = new OOPress\Core\Database\Migration($db);
+    $migration->run(__DIR__ . '/../database/migrations');
+    echo "\n✅ Migrations complete!\n";
+}
+
+function migrateRollback(string $steps = '1'): void
+{
+    $steps = (int)$steps;
+    echo "⏪ Rolling back {$steps} migration(s)...\n\n";
+    
+    $db = require __DIR__ . '/../config/database.php';
+    $migration = new OOPress\Core\Database\Migration($db);
+    $migration->rollback($steps);
+    echo "\n✅ Rollback complete!\n";
+}
+
+function migrateFresh(): void
+{
+    echo "🔄 Fresh migration...\n\n";
+    
+    $db = require __DIR__ . '/../config/database.php';
+    $migration = new OOPress\Core\Database\Migration($db);
+    
+    echo "Rolling back all migrations...\n";
+    $migration->rollback(1000);
+    
+    echo "\nRunning all migrations...\n";
+    $migration->run(__DIR__ . '/../database/migrations');
+    
+    echo "\n✅ Fresh migration complete!\n";
+}
+
+function migrateStatus(): void
+{
+    echo "📊 Migration status\n\n";
+    
+    $db = require __DIR__ . '/../config/database.php';
+    
+    // Check if migrations table exists
+    $tableExists = $db->query("SHOW TABLES LIKE 'migrations'")->rowCount() > 0;
+    
+    if (!$tableExists) {
+        echo "No migrations have been run yet.\n";
+        echo "Run 'php cli/oopress migrate' to create the migrations table.\n";
+        return;
+    }
+    
+    // Get executed migrations
+    $executed = $db->select('migrations', '*', [
+        'ORDER' => ['batch' => 'DESC', 'id' => 'DESC']
+    ]);
+    
+    if (empty($executed)) {
+        echo "No migrations have been run yet.\n";
+    } else {
+        echo "Executed migrations:\n";
+        foreach ($executed as $mig) {
+            echo "  • {$mig['migration']} (batch {$mig['batch']}) - {$mig['executed_at']}\n";
+        }
+    }
+    
+    // Get pending migrations - FIXED: compare without .php extension
+    $migrationsDir = __DIR__ . '/../database/migrations';
+    if (is_dir($migrationsDir)) {
+        $files = glob($migrationsDir . '/*.php');
+        $executedNames = array_column($executed, 'migration');
+        
+        // Remove .php extension from filenames for comparison
+        $pending = [];
+        foreach ($files as $file) {
+            $filename = basename($file, '.php');  // Remove .php extension
+            if (!in_array($filename, $executedNames)) {
+                $pending[] = basename($file);  // Keep .php for display
+            }
+        }
+        
+        if (!empty($pending)) {
+            echo "\nPending migrations:\n";
+            foreach ($pending as $pend) {
+                echo "  • {$pend}\n";
+            }
+        } else {
+            echo "\nNo pending migrations.\n";
+        }
+    }
+}
+
+function dbSeed(): void
+{
+    $db = require __DIR__ . '/../config/database.php';
+    $seederPath = __DIR__ . '/../database/seeders/DatabaseSeeder.php';
+    
+    if (!file_exists($seederPath)) {
+        echo "❌ DatabaseSeeder.php not found in database/seeders/\n";
+        return;
+    }
+    
+    $seeder = require $seederPath;
+    if (method_exists($seeder, 'run')) {
+        $seeder->run($db);
+    } else {
+        echo "❌ DatabaseSeeder must have a run() method\n";
+    }
 }
 
 function cacheClear(): void
@@ -92,28 +250,11 @@ function routeList(): void
         return;
     }
     
-    // Mock router to collect routes
-    $router = new class {
-        public array $routes = [];
-        public function get(string $path, $handler): void {
-            $this->routes['GET'][$path] = $handler;
-        }
-        public function post(string $path, $handler): void {
-            $this->routes['POST'][$path] = $handler;
-        }
-        public function put(string $path, $handler): void {
-            $this->routes['PUT'][$path] = $handler;
-        }
-        public function delete(string $path, $handler): void {
-            $this->routes['DELETE'][$path] = $handler;
-        }
-    };
-    
-    require $routesFile;
+    $routes = require $routesFile;
     
     echo "\n📋 Registered Routes:\n\n";
-    foreach ($router->routes as $method => $paths) {
-        foreach ($paths as $path => $handler) {
+    foreach ($routes as $method => $methodRoutes) {
+        foreach ($methodRoutes as $path => $handler) {
             $handlerStr = is_array($handler) ? implode('@', $handler) : (is_string($handler) ? $handler : 'Closure');
             echo sprintf("  %-7s %-30s %s\n", $method, $path, $handlerStr);
         }
@@ -125,24 +266,41 @@ function showHelp(): void
 {
     echo <<<HELP
 
-OOPress CLI Tool - Modern PHP CMS
+╔═══════════════════════════════════════════════════════════╗
+║                    OOPress CLI Tool                       ║
+║              Modern PHP CMS - Lean & Fast                 ║
+╚═══════════════════════════════════════════════════════════╝
 
 Usage:
-  php cli/oopress [command]
+  php cli/oopress [command] [arguments]
 
-Commands:
-  serve              Start development server on localhost:8080
-  make:model <name>  Create a new model class
-  make:controller <name> Create a new controller class
-  make:middleware <name> Create a new middleware class
-  cache:clear        Clear all cached files
-  route:list         List all registered routes
-  help               Show this help message
+Development Commands:
+  serve                      Start development server on localhost:8085
+
+Make Commands:
+  make:model <name>         Create a new model class
+  make:controller <name>    Create a new controller class
+  make:middleware <name>    Create a new middleware class
+  make:migration <name>     Create a new migration file
+
+Database Commands:
+  migrate                   Run all pending migrations
+  migrate:rollback [steps]  Rollback last migration(s) (default: 1)
+  migrate:fresh             Rollback all and run migrations fresh
+  migrate:status            Show migration status
+  db:seed                   Run database seeders
+
+Utility Commands:
+  cache:clear               Clear all cached files
+  route:list                List all registered routes
+  help                      Show this help message
 
 Examples:
   php cli/oopress serve
   php cli/oopress make:model Post
-  php cli/oopress make:controller PostController
+  php cli/oopress make:migration create_posts_table
+  php cli/oopress migrate
+  php cli/oopress migrate:rollback 2
 
 HELP;
 }
