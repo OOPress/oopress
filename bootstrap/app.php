@@ -6,6 +6,9 @@ use OOPress\Core\Application;
 use OOPress\Core\Router;
 use OOPress\Core\Database\Model;
 use Medoo\Medoo;
+// Initialize i18n
+use OOPress\Core\I18n\Translator;
+use OOPress\Http\Middleware\LanguageMiddleware;
 
 // Load Composer autoloader
 require __DIR__ . '/../vendor/autoload.php';
@@ -25,6 +28,24 @@ $whoops->register();
 
 // Create application
 $app = new Application(__DIR__ . '/..');
+
+// Create translator
+$translator = new Translator($_ENV['APP_LOCALE'] ?? 'en');
+$translator->setFallbackLocale($_ENV['APP_FALLBACK_LOCALE'] ?? 'en');
+
+// Make translator available globally
+global $translator;
+$GLOBALS['translator'] = $translator;
+
+// Bind to container
+$app->getContainer()->singleton(Translator::class, fn() => $translator);
+$app->getContainer()->singleton(LanguageMiddleware::class);
+
+// Load helper functions
+require __DIR__ . '/../src/Core/I18n/helpers.php';
+
+// Load default translations
+$translator->load('default');
 
 // Load configuration
 $app->loadConfig(__DIR__ . '/../config');
