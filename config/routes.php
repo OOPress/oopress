@@ -10,6 +10,7 @@ return [
     'GET' => [
         // Authentication routes
         '/login' => [AuthController::class, 'showLogin'],
+        '/register' => [AuthController::class, 'showRegister'],
         '/logout' => [AuthController::class, 'logout'],
         '/dashboard' => [AuthController::class, 'dashboard'],
         
@@ -28,11 +29,13 @@ return [
             return '<h1>' . __('About OOPress') . '</h1>';
         },
         '/{lang:' . $languages . '}/post/{slug}' => [PostController::class, 'show'],
+        '/{lang:' . $languages . '}/register' => [AuthController::class, 'showRegister'],
         '/{lang:' . $languages . '}/login' => [AuthController::class, 'showLogin'],
         '/{lang:' . $languages . '}/dashboard' => [AuthController::class, 'dashboard'],
     ],
     
     'POST' => [
         '/login' => [AuthController::class, 'login'],
+        '/register' => [AuthController::class, 'register'],
     ],
 ];
