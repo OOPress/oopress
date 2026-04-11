@@ -17,6 +17,9 @@ Lean, modern PHP CMS built on clean OOP architecture.
 ## Quick Start
 
 ```bash
+# Configure your web server to point to /public
+# See INSTALL.md for Apache/Nginx configuration
+
 # Clone the repo
 git clone https://github.com/OOPress/oopress.git
 cd oopress
@@ -32,4 +35,7 @@ composer install
 
 # Run migrations
 php cli/oopress migrate
+
+# Start the development server
+php cli/oopress serve
 ```
