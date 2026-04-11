@@ -9,6 +9,8 @@ use Medoo\Medoo;
 // Initialize i18n
 use OOPress\Core\I18n\Translator;
 use OOPress\Http\Middleware\LanguageMiddleware;
+use OOPress\Core\Session;
+use OOPress\Core\Auth;
 
 // Load Composer autoloader
 require __DIR__ . '/../vendor/autoload.php';
@@ -73,5 +75,13 @@ $app->getContainer()->singleton(Medoo::class, fn() => $db);
 $router = $app->getContainer()->get(Router::class);
 $routes = require __DIR__ . '/../config/routes.php';
 $router->addRoutes($routes);
+
+// Initialize session and auth
+$session = new Session();
+$auth = new Auth($session);
+
+// Bind to container
+$app->getContainer()->singleton(Session::class, fn() => $session);
+$app->getContainer()->singleton(Auth::class, fn() => $auth);
 
 return $app;
