@@ -5,6 +5,7 @@ use OOPress\Controllers\AuthController;
 use OOPress\Controllers\PostController;
 use OOPress\Controllers\AdminController;
 use OOPress\Controllers\MediaController;
+use OOPress\Controllers\TaxonomyController;
 
 $languages = 'en|es|fr|de|it|pt|ru|ja|zh|ar';
 
@@ -20,6 +21,12 @@ return [
         '/admin/users/{id}/edit' => [AdminController::class, 'editUser'],
         '/admin/media' => [MediaController::class, 'index'],
         '/admin/media/{id}/delete' => [MediaController::class, 'delete'],
+        '/admin/categories' => [TaxonomyController::class, 'categories'],
+        '/admin/categories/{id}/edit' => [TaxonomyController::class, 'editCategory'],
+        '/admin/categories/{id}/delete' => [TaxonomyController::class, 'deleteCategory'],
+        '/admin/tags' => [TaxonomyController::class, 'tags'],
+        '/admin/tags/{id}/edit' => [TaxonomyController::class, 'editTag'],
+        '/admin/tags/{id}/delete' => [TaxonomyController::class, 'deleteTag'],
 
         // Auth routes
         '/login' => [AuthController::class, 'showLogin'],
@@ -53,5 +60,9 @@ return [
         '/admin/users/{id}/edit' => [AdminController::class, 'editUser'],
         '/admin/media/upload' => [MediaController::class, 'upload'],
         '/admin/media/ajax-upload' => [MediaController::class, 'ajaxUpload'],
+        '/admin/categories/create' => [TaxonomyController::class, 'createCategory'],
+        '/admin/categories/{id}/edit' => [TaxonomyController::class, 'editCategory'],
+        '/admin/tags/create' => [TaxonomyController::class, 'createTag'],
+        '/admin/tags/{id}/edit' => [TaxonomyController::class, 'editTag'],
     ],
 ];
