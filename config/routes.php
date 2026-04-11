@@ -4,6 +4,7 @@ use OOPress\Controllers\HomeController;
 use OOPress\Controllers\AuthController;
 use OOPress\Controllers\PostController;
 use OOPress\Controllers\AdminController;
+use OOPress\Controllers\MediaController;
 
 $languages = 'en|es|fr|de|it|pt|ru|ja|zh|ar';
 
@@ -17,7 +18,9 @@ return [
         '/admin/posts/{id}/delete' => [AdminController::class, 'deletePost'],
         '/admin/users' => [AdminController::class, 'users'],
         '/admin/users/{id}/edit' => [AdminController::class, 'editUser'],
-        
+        '/admin/media' => [MediaController::class, 'index'],
+        '/admin/media/{id}/delete' => [MediaController::class, 'delete'],
+
         // Auth routes
         '/login' => [AuthController::class, 'showLogin'],
         '/register' => [AuthController::class, 'showRegister'],
@@ -48,5 +51,7 @@ return [
         '/admin/posts/create' => [AdminController::class, 'createPost'],
         '/admin/posts/{id}/edit' => [AdminController::class, 'editPost'],
         '/admin/users/{id}/edit' => [AdminController::class, 'editUser'],
+        '/admin/media/upload' => [MediaController::class, 'upload'],
+        '/admin/media/ajax-upload' => [MediaController::class, 'ajaxUpload'],
     ],
 ];
