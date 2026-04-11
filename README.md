@@ -17,7 +17,19 @@ Lean, modern PHP CMS built on clean OOP architecture.
 ## Quick Start
 
 ```bash
-composer install
+# Clone the repo
+git clone https://github.com/OOPress/oopress.git
+cd oopress
+
+# Copy environment config
 cp .env.example .env
+
 # Edit .env with your database credentials
+nano .env
+
+# Install dependencies
+composer install
+
+# Run migrations
+php cli/oopress migrate
 ```
