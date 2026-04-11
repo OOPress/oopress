@@ -27,19 +27,23 @@ class Auth
             }
         }
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->user && $this->user->role === 'admin';
+    }
     
     public function attempt(string $username, string $password): bool
     {
-        // Try by username first
         $user = User::firstWhere(['username' => $username, 'status' => 'active']);
         
-        // If not found, try by email
         if (!$user) {
             $user = User::firstWhere(['email' => $username, 'status' => 'active']);
         }
         
         if ($user && $user->verifyPassword($password)) {
             $this->session->set('user_id', $user->id);
+            $this->session->set('user_role', $user->role);  // Add this line
             $this->user = $user;
             $user->updateLastLogin();
             return true;

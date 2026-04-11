@@ -220,13 +220,29 @@ class Router
      */
     private function resolveMiddleware(string $class): MiddlewareInterface
     {
-        if ($this->container->has($class)) {
-            return $this->container->get($class);
+        // Debug: Log what we're looking for
+        error_log("Looking for middleware: " . $class);
+        
+        // Check if class exists
+        if (!class_exists($class)) {
+            error_log("Class does not exist: " . $class);
+            throw new RuntimeException("Middleware class {$class} does not exist");
         }
         
-        throw new RuntimeException("Middleware {$class} not found in container");
+        // Try to instantiate directly (simplest approach)
+        try {
+            $middleware = new $class();
+            if ($middleware instanceof MiddlewareInterface) {
+                return $middleware;
+            }
+            error_log("Class {$class} does not implement MiddlewareInterface");
+        } catch (\Exception $e) {
+            error_log("Failed to instantiate {$class}: " . $e->getMessage());
+        }
+        
+        throw new RuntimeException("Middleware {$class} not found");
     }
-    
+        
     /**
      * Get or create FastRoute dispatcher
      */

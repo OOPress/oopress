@@ -11,6 +11,10 @@ use OOPress\Core\I18n\Translator;
 use OOPress\Http\Middleware\LanguageMiddleware;
 use OOPress\Core\Session;
 use OOPress\Core\Auth;
+use OOPress\Http\Middleware\AdminMiddleware;
+use OOPress\Http\Middleware\AuthMiddleware;
+use OOPress\Http\Middleware\GuestMiddleware;
+
 
 // Load Composer autoloader
 require __DIR__ . '/../vendor/autoload.php';
@@ -71,11 +75,6 @@ Model::setDB($db);
 // Bind database to container
 $app->getContainer()->singleton(Medoo::class, fn() => $db);
 
-// Load routes - New array-based approach
-$router = $app->getContainer()->get(Router::class);
-$routes = require __DIR__ . '/../config/routes.php';
-$router->addRoutes($routes);
-
 // Initialize session and auth
 $session = new Session();
 $auth = new Auth($session);
@@ -83,5 +82,15 @@ $auth = new Auth($session);
 // Bind to container
 $app->getContainer()->singleton(Session::class, fn() => $session);
 $app->getContainer()->singleton(Auth::class, fn() => $auth);
+
+// Manually register middleware instances
+$app->getContainer()->instance('OOPress\Http\Middleware\AdminMiddleware', new \OOPress\Http\Middleware\AdminMiddleware());
+$app->getContainer()->instance('OOPress\Http\Middleware\AuthMiddleware', new \OOPress\Http\Middleware\AuthMiddleware());
+$app->getContainer()->instance('OOPress\Http\Middleware\GuestMiddleware', new \OOPress\Http\Middleware\GuestMiddleware());
+
+// Load routes
+$router = $app->getContainer()->get(Router::class);
+$routes = require __DIR__ . '/../config/routes.php';
+$router->addRoutes($routes);
 
 return $app;
