@@ -6,6 +6,7 @@ use OOPress\Controllers\PostController;
 use OOPress\Controllers\AdminController;
 use OOPress\Controllers\MediaController;
 use OOPress\Controllers\TaxonomyController;
+use OOPress\Controllers\SettingsController;
 
 $languages = 'en|es|fr|de|it|pt|ru|ja|zh|ar';
 
@@ -27,6 +28,7 @@ return [
         '/admin/tags' => [TaxonomyController::class, 'tags'],
         '/admin/tags/{id}/edit' => [TaxonomyController::class, 'editTag'],
         '/admin/tags/{id}/delete' => [TaxonomyController::class, 'deleteTag'],
+        '/admin/settings' => [SettingsController::class, 'index'],
 
         // Auth routes
         '/login' => [AuthController::class, 'showLogin'],
@@ -64,5 +66,6 @@ return [
         '/admin/categories/{id}/edit' => [TaxonomyController::class, 'editCategory'],
         '/admin/tags/create' => [TaxonomyController::class, 'createTag'],
         '/admin/tags/{id}/edit' => [TaxonomyController::class, 'editTag'],
+        '/admin/settings/save' => [SettingsController::class, 'save'],
     ],
 ];

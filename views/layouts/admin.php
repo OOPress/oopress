@@ -20,6 +20,7 @@
                 <li><a href="/admin/media"><?= __('Media') ?></a></li>
                 <li><a href="/admin/categories"><?= __('Categories') ?></a></li>
                 <li><a href="/admin/tags"><?= __('Tags') ?></a></li>
+                <li><a href="/admin/settings"><?= __('Settings') ?></a></li>
                 <li><a href="/"><?= __('View Site') ?></a></li>
                 <li><a href="/logout"><?= __('Logout') ?></a></li>
             </ul>
