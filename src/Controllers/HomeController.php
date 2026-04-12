@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OOPress\Controllers;
 
 use OOPress\Models\Post;
+use OOPress\Models\Setting;
 use OOPress\Http\Request;
 use OOPress\Http\Response;
 use League\Plates\Engine;
@@ -20,11 +21,30 @@ class HomeController
     
     public function index(Request $request): Response
     {
-        $posts = Post::where(['status' => 'published']);
+        // Get settings
+        $postsPerPage = (int)Setting::get('posts_per_page', 10);
+        $showExcerpt = (bool)Setting::get('show_excerpt', true);
+        $excerptLength = (int)Setting::get('excerpt_length', 55);
+        
+        // Get page parameter
+        $page = (int)($request->input('page') ?? 1);
+        $offset = ($page - 1) * $postsPerPage;
+        
+        // Get published posts
+        $allPosts = Post::where(['status' => 'published']);
+        $totalPosts = count($allPosts);
+        $posts = array_slice($allPosts, $offset, $postsPerPage);
         
         $content = $this->view->render('home', [
+            'title' => Setting::get('site_title', 'OOPress'),
+            'tagline' => Setting::get('site_tagline', 'A modern PHP CMS'),
             'posts' => $posts,
-            'title' => __('Welcome to OOPress')
+            'show_excerpt' => $showExcerpt,
+            'excerpt_length' => $excerptLength,
+            'current_page' => $page,
+            'total_pages' => ceil($totalPosts / $postsPerPage),
+            'date_format' => Setting::get('date_format', 'F j, Y'),
+            'time_format' => Setting::get('time_format', 'g:i a')
         ]);
         
         return new Response($content);
@@ -32,16 +52,122 @@ class HomeController
     
     public function show(Request $request): Response
     {
-        $id = $request->attribute('id');
-        $post = Post::find($id);
+        $slug = $request->attribute('slug');
+        $post = Post::firstWhere(['slug' => $slug, 'status' => 'published']);
         
-        if (!$post || $post->status !== 'published') {
-            return new Response($this->view->render('errors/404'), 404);
+        if (!$post) {
+            $content = $this->view->render('errors/404', [
+                'title' => 'Page Not Found'
+            ]);
+            return new Response($content, 404);
         }
         
+        // Increment view count
+        $post->incrementViews();
+        
+        // Get post categories and tags
+        $categories = $post->getCategories();
+        $tags = $post->getTags();
+        
         $content = $this->view->render('post/single', [
+            'title' => $post->title,
             'post' => $post,
-            'title' => $post->title
+            'categories' => $categories,
+            'tags' => $tags,
+            'date_format' => Setting::get('date_format', 'F j, Y'),
+            'time_format' => Setting::get('time_format', 'g:i a')
+        ]);
+        
+        return new Response($content);
+    }
+    
+    public function category(Request $request): Response
+    {
+        $slug = $request->attribute('slug');
+        
+        // Find category by slug
+        $categoryTaxonomy = \OOPress\Models\Taxonomy::firstWhere(['slug' => 'category']);
+        if (!$categoryTaxonomy) {
+            $content = $this->view->render('errors/404', ['title' => 'Category Not Found']);
+            return new Response($content, 404);
+        }
+        
+        $category = \OOPress\Models\Term::firstWhere([
+            'slug' => $slug,
+            'taxonomy_id' => $categoryTaxonomy->id
+        ]);
+        
+        if (!$category) {
+            $content = $this->view->render('errors/404', ['title' => 'Category Not Found']);
+            return new Response($content, 404);
+        }
+        
+        // Get posts in this category
+        $db = \OOPress\Models\Post::getDB();
+        $postIds = $db->select('term_relationships', 'object_id', [
+            'term_id' => $category->id
+        ]);
+        
+        if (empty($postIds)) {
+            $posts = [];
+        } else {
+            $posts = \OOPress\Models\Post::where([
+                'id' => $postIds,
+                'status' => 'published'
+            ]);
+        }
+        
+        $content = $this->view->render('archive/category', [
+            'title' => __('Category') . ': ' . $category->name,
+            'category' => $category,
+            'posts' => $posts,
+            'date_format' => Setting::get('date_format', 'F j, Y')
+        ]);
+        
+        return new Response($content);
+    }
+    
+    public function tag(Request $request): Response
+    {
+        $slug = $request->attribute('slug');
+        
+        // Find tag by slug
+        $tagTaxonomy = \OOPress\Models\Taxonomy::firstWhere(['slug' => 'tag']);
+        if (!$tagTaxonomy) {
+            $content = $this->view->render('errors/404', ['title' => 'Tag Not Found']);
+            return new Response($content, 404);
+        }
+        
+        $tag = \OOPress\Models\Term::firstWhere([
+            'slug' => $slug,
+            'taxonomy_id' => $tagTaxonomy->id
+        ]);
+        
+        if (!$tag) {
+            $content = $this->view->render('errors/404', ['title' => 'Tag Not Found']);
+            return new Response($content, 404);
+        }
+        
+        // Get posts with this tag
+        $db = \OOPress\Models\Post::getDB();
+        $postIds = $db->select('term_relationships', 'object_id', [
+            'term_id' => $tag->id
+        ]);
+        
+        if (empty($postIds)) {
+            $posts = [];
+        } else {
+            $posts = \OOPress\Models\Post::where([
+                'id' => $postIds,
+                'status' => 'published'
+            ]);
+        }
+        
+        $content = $this->view->render('archive/tag', [
+            'title' => __('Tag') . ': ' . $tag->name,
+            'tag' => $tag,
+            'posts' => $posts,
+            'date_format' => Setting::get('date_format', 'F j, Y')
         ]);
         
         return new Response($content);

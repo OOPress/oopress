@@ -41,7 +41,9 @@ return [
         '/about' => function() {
             return '<h1>' . __('About OOPress') . '</h1>';
         },
-        '/post/{slug}' => [PostController::class, 'show'],
+        '/post/{slug}' => [HomeController::class, 'show'],
+        '/category/{slug}' => [HomeController::class, 'category'],
+        '/tag/{slug}' => [HomeController::class, 'tag'],
         
         // Language routes
         '/{lang:' . $languages . '}' => [HomeController::class, 'index'],
