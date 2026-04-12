@@ -9,6 +9,8 @@ use OOPress\Models\User;
 use OOPress\Http\Request;
 use OOPress\Http\Response;
 use League\Plates\Engine;
+use OOPress\Models\Term;
+use OOPress\Models\Taxonomy;
 
 class AdminController
 {
@@ -88,6 +90,8 @@ class AdminController
             $content = $request->input('content');
             $excerpt = $request->input('excerpt');
             $status = $request->input('status', 'draft');
+            $categories = $request->input('categories', []);
+            $tags = $request->input('tags', []);
             
             $post = new Post([
                 'title' => $title,
@@ -100,6 +104,16 @@ class AdminController
             ]);
             
             if ($post->save()) {
+                // Save categories
+                if (!empty($categories)) {
+                    $post->setCategories($categories);
+                }
+                
+                // Save tags
+                if (!empty($tags)) {
+                    $post->setTags($tags);
+                }
+                
                 return Response::redirect('/admin/posts');
             }
             
@@ -113,7 +127,7 @@ class AdminController
         
         return new Response($content);
     }
-    
+
     public function editPost(Request $request): Response
     {
         if (!$this->checkAdminAccess()) {
@@ -133,7 +147,16 @@ class AdminController
             $post->excerpt = $request->input('excerpt');
             $post->status = $request->input('status', 'draft');
             
+            $categories = $request->input('categories', []);
+            $tags = $request->input('tags', []);
+            
             if ($post->save()) {
+                // Save categories
+                $post->setCategories($categories);
+                
+                // Save tags
+                $post->setTags($tags);
+                
                 return Response::redirect('/admin/posts');
             }
             
