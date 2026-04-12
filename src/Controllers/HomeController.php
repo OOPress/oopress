@@ -9,6 +9,7 @@ use OOPress\Models\Setting;
 use OOPress\Http\Request;
 use OOPress\Http\Response;
 use League\Plates\Engine;
+use OOPress\Core\SEO;
 
 class HomeController
 {
@@ -34,6 +35,9 @@ class HomeController
         $allPosts = Post::where(['status' => 'published']);
         $totalPosts = count($allPosts);
         $posts = array_slice($allPosts, $offset, $postsPerPage);
+
+        $seo = new SEO();
+        $seo->setHomepage();
         
         $content = $this->view->render('home', [
             'title' => Setting::get('site_title', 'OOPress'),
@@ -44,7 +48,8 @@ class HomeController
             'current_page' => $page,
             'total_pages' => ceil($totalPosts / $postsPerPage),
             'date_format' => Setting::get('date_format', 'F j, Y'),
-            'time_format' => Setting::get('time_format', 'g:i a')
+            'time_format' => Setting::get('time_format', 'g:i a'),
+            'seo' => $seo
         ]);
         
         return new Response($content);
@@ -78,6 +83,9 @@ class HomeController
             $auth = new \OOPress\Core\Auth(new \OOPress\Core\Session());
         }
         
+        $seo = new SEO();
+        $seo->setPost($post);
+
         $content = $this->view->render('post/single', [
             'title' => $post->title,
             'post' => $post,
@@ -85,7 +93,8 @@ class HomeController
             'tags' => $tags,
             'date_format' => Setting::get('date_format', 'F j, Y'),
             'time_format' => Setting::get('time_format', 'g:i a'),
-            'auth' => $auth  // Add this line
+            'auth' => $auth,
+            'seo' => $seo  
         ]);
         
         return new Response($content);
@@ -127,11 +136,15 @@ class HomeController
             ]);
         }
         
+        $seo = new SEO();
+        $seo->setArchive($category->name, $category->description);
+
         $content = $this->view->render('archive/category', [
             'title' => __('Category') . ': ' . $category->name,
             'category' => $category,
             'posts' => $posts,
-            'date_format' => Setting::get('date_format', 'F j, Y')
+            'date_format' => Setting::get('date_format', 'F j, Y'),
+            'seo' => $seo 
         ]);
         
         return new Response($content);
@@ -173,11 +186,15 @@ class HomeController
             ]);
         }
         
+        $seo = new SEO();
+        $seo->setArchive($tag->name, $tag->description);
+
         $content = $this->view->render('archive/tag', [
             'title' => __('Tag') . ': ' . $tag->name,
             'tag' => $tag,
             'posts' => $posts,
-            'date_format' => Setting::get('date_format', 'F j, Y')
+            'date_format' => Setting::get('date_format', 'F j, Y'),
+            'seo' => $seo
         ]);
         
         return new Response($content);

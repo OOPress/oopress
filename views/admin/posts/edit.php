@@ -36,6 +36,91 @@
             <a href="/admin/posts" class="btn btn-secondary"><?= __('Cancel') ?></a>
         </form>
     </div>
+
+    <!-- Add after the content field -->
+    <div class="meta-box">
+        <h3><?= __('SEO Settings') ?></h3>
+        <div class="meta-box-content">
+            <div class="form-group">
+                <label for="meta_title"><?= __('Meta Title') ?></label>
+                <input type="text" id="meta_title" name="meta_title" value="<?= $this->e($post->meta_title) ?>">
+                <small><?= __('Leave blank to use post title. Recommended: 50-60 characters.') ?></small>
+                <div class="character-count">0/60</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="meta_description"><?= __('Meta Description') ?></label>
+                <textarea id="meta_description" name="meta_description" rows="3"><?= $this->e($post->meta_description) ?></textarea>
+                <small><?= __('Recommended: 150-160 characters.') ?></small>
+                <div class="character-count">0/160</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="meta_keywords"><?= __('Meta Keywords') ?></label>
+                <input type="text" id="meta_keywords" name="meta_keywords" value="<?= $this->e($post->meta_keywords) ?>">
+                <small><?= __('Comma-separated keywords') ?></small>
+            </div>
+            
+            <div class="form-group">
+                <label for="canonical_url"><?= __('Canonical URL') ?></label>
+                <input type="url" id="canonical_url" name="canonical_url" value="<?= $this->e($post->canonical_url) ?>">
+                <small><?= __('Override the canonical URL if needed.') ?></small>
+            </div>
+            
+            <h4><?= __('Open Graph (Social Media)') ?></h4>
+            
+            <div class="form-group">
+                <label for="og_title"><?= __('OG Title') ?></label>
+                <input type="text" id="og_title" name="og_title" value="<?= $this->e($post->og_title) ?>">
+            </div>
+            
+            <div class="form-group">
+                <label for="og_description"><?= __('OG Description') ?></label>
+                <textarea id="og_description" name="og_description" rows="2"><?= $this->e($post->og_description) ?></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="og_image"><?= __('OG Image URL') ?></label>
+                <input type="url" id="og_image" name="og_image" value="<?= $this->e($post->og_image) ?>">
+                <button type="button" id="select-image-btn" class="btn btn-secondary"><?= __('Select from Media') ?></button>
+            </div>
+            
+            <div class="form-group">
+                <label for="schema_type"><?= __('Schema Type') ?></label>
+                <select id="schema_type" name="schema_type">
+                    <option value="Article" <?= $post->schema_type === 'Article' ? 'selected' : '' ?>>Article</option>
+                    <option value="BlogPosting" <?= $post->schema_type === 'BlogPosting' ? 'selected' : '' ?>>BlogPosting</option>
+                    <option value="NewsArticle" <?= $post->schema_type === 'NewsArticle' ? 'selected' : '' ?>>NewsArticle</option>
+                    <option value="Review" <?= $post->schema_type === 'Review' ? 'selected' : '' ?>>Review</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Character counters
+    document.getElementById('meta_title')?.addEventListener('input', function() {
+        let count = this.value.length;
+        this.parentElement.querySelector('.character-count').textContent = count + '/60';
+        if (count > 60) this.style.borderColor = 'red';
+        else this.style.borderColor = '';
+    });
+
+    document.getElementById('meta_description')?.addEventListener('input', function() {
+        let count = this.value.length;
+        this.parentElement.querySelector('.character-count').textContent = count + '/160';
+        if (count > 160) this.style.borderColor = 'red';
+        else this.style.borderColor = '';
+    });
+
+    // Media selector (simplified - you can enhance with your media library)
+    document.getElementById('select-image-btn')?.addEventListener('click', function() {
+        let url = prompt('Enter image URL from media library:');
+        if (url) {
+            document.getElementById('og_image').value = url;
+        }
+    });
+    </script>
     
     <div class="post-editor-sidebar">
         <!-- Categories Box -->

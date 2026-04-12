@@ -1,3 +1,14 @@
+<?php 
+// Ensure $seo is passed from the controller
+if (!isset($seo)) {
+    $seo = new \OOPress\Core\SEO();
+    $seo->set404();
+}
+
+// Render SEO in head
+$this->section('seo', $seo->render());
+?>
+
 <?php $this->layout('layouts/app') ?>
 
 <div class="error-page">

@@ -8,6 +8,7 @@ use OOPress\Controllers\MediaController;
 use OOPress\Controllers\TaxonomyController;
 use OOPress\Controllers\SettingsController;
 use OOPress\Controllers\CommentController;
+use OOPress\Controllers\SitemapController;
 
 $languages = 'en|es|fr|de|it|pt|ru|ja|zh|ar';
 
@@ -35,6 +36,8 @@ return [
         '/admin/comments/{id}/spam' => [CommentController::class, 'spam'],
         '/admin/comments/{id}/trash' => [CommentController::class, 'trash'],
         '/admin/comments/{id}/delete' => [CommentController::class, 'delete'],
+
+        '/sitemap.xml' => [SitemapController::class, 'index'],
 
         // Auth routes
         '/login' => [AuthController::class, 'showLogin'],

@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= get_locale() ?>" <?= $this->section('html-attributes') ?>>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $this->e($title ?? 'OOPress') ?></title>
+    <?= $this->section('seo') ?>
     <link rel="stylesheet" href="/assets/css/style.css">
+    <?= $this->section('head') ?>
 </head>
 <body>
     <header>

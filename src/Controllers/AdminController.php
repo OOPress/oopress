@@ -11,6 +11,7 @@ use OOPress\Http\Response;
 use League\Plates\Engine;
 use OOPress\Models\Term;
 use OOPress\Models\Taxonomy;
+use OOPress\Core\SEO;
 
 class AdminController
 {
@@ -92,6 +93,14 @@ class AdminController
             $status = $request->input('status', 'draft');
             $categories = $request->input('categories', []);
             $tags = $request->input('tags', []);
+            $metaTitle = $request->input('meta_title');
+            $metaDescription = $request->input('meta_description');
+            $metaKeywords = $request->input('meta_keywords');
+            $canonicalUrl = $request->input('canonical_url');
+            $ogTitle = $request->input('og_title');
+            $ogDescription = $request->input('og_description');
+            $ogImage = $request->input('og_image');
+            $schemaType = $request->input('schema_type');
             
             $post = new Post([
                 'title' => $title,
@@ -100,7 +109,15 @@ class AdminController
                 'excerpt' => $excerpt,
                 'status' => $status,
                 'type' => 'post',
-                'author_id' => $_SESSION['user_id']
+                'author_id' => $_SESSION['user_id'],
+                'meta_title' => $metaTitle,
+                'meta_description' => $metaDescription,
+                'meta_keywords' => $metaKeywords,
+                'canonical_url' => $canonicalUrl,
+                'og_title' => $ogTitle,
+                'og_description' => $ogDescription,
+                'og_image' => $ogImage,
+                'schema_type' => $schemaType
             ]);
             
             if ($post->save()) {

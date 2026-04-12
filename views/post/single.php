@@ -113,25 +113,25 @@ if (!isset($auth)) {
                 <input type="hidden" name="post_id" value="<?= $post->id ?>">
                 <input type="hidden" name="parent_id" id="parent_id" value="0">
                 
-                <?php if (!$auth->check()): ?>
+                <?php if (!$auth || !$auth->check()): ?>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="author_name"><?= __('Name') ?> *</label>
                             <input type="text" id="author_name" name="author_name" 
-                                   value="<?= $this->e($_SESSION['comment_data']['author_name'] ?? '') ?>" required>
+                                value="<?= $this->e($_SESSION['comment_data']['author_name'] ?? '') ?>" required>
                         </div>
                         
                         <div class="form-group">
                             <label for="author_email"><?= __('Email') ?> *</label>
                             <input type="email" id="author_email" name="author_email" 
-                                   value="<?= $this->e($_SESSION['comment_data']['author_email'] ?? '') ?>" required>
+                                value="<?= $this->e($_SESSION['comment_data']['author_email'] ?? '') ?>" required>
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label for="author_url"><?= __('Website') ?></label>
                         <input type="url" id="author_url" name="author_url" 
-                               value="<?= $this->e($_SESSION['comment_data']['author_url'] ?? '') ?>">
+                            value="<?= $this->e($_SESSION['comment_data']['author_url'] ?? '') ?>">
                     </div>
                 <?php else: ?>
                     <p class="logged-in-as">
