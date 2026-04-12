@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OOPress\Controllers;
 
 use OOPress\Models\Post;
+use OOPress\Models\Setting;
 use OOPress\Http\Request;
 use OOPress\Http\Response;
 use League\Plates\Engine;
@@ -20,7 +21,6 @@ class PostController
     
     public function home(Request $request): Response
     {
-        // Simple query without pagination for now
         $posts = Post::where(['status' => 'published']);
         
         $content = $this->view->render('home', [
@@ -37,12 +37,25 @@ class PostController
         $post = Post::firstWhere(['slug' => $slug, 'status' => 'published']);
         
         if (!$post) {
-            return new Response($this->view->render('errors/404'), 404);
+            $content = $this->view->render('errors/404', [
+                'title' => 'Page Not Found'
+            ]);
+            return new Response($content, 404);
         }
         
+        $post->incrementViews();
+        
+        // Get categories and tags
+        $categories = $post->getCategories();
+        $tags = $post->getTags();
+        
         $content = $this->view->render('post/single', [
+            'title' => $post->title,
             'post' => $post,
-            'title' => $post->title
+            'categories' => $categories,
+            'tags' => $tags,
+            'date_format' => Setting::get('date_format', 'F j, Y'),
+            'time_format' => Setting::get('time_format', 'g:i a')
         ]);
         
         return new Response($content);
