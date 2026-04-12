@@ -7,6 +7,7 @@ use OOPress\Controllers\AdminController;
 use OOPress\Controllers\MediaController;
 use OOPress\Controllers\TaxonomyController;
 use OOPress\Controllers\SettingsController;
+use OOPress\Controllers\CommentController;
 
 $languages = 'en|es|fr|de|it|pt|ru|ja|zh|ar';
 
@@ -29,6 +30,11 @@ return [
         '/admin/tags/{id}/edit' => [TaxonomyController::class, 'editTag'],
         '/admin/tags/{id}/delete' => [TaxonomyController::class, 'deleteTag'],
         '/admin/settings' => [SettingsController::class, 'index'],
+        '/admin/comments' => [CommentController::class, 'index'],
+        '/admin/comments/{id}/approve' => [CommentController::class, 'approve'],
+        '/admin/comments/{id}/spam' => [CommentController::class, 'spam'],
+        '/admin/comments/{id}/trash' => [CommentController::class, 'trash'],
+        '/admin/comments/{id}/delete' => [CommentController::class, 'delete'],
 
         // Auth routes
         '/login' => [AuthController::class, 'showLogin'],
@@ -59,6 +65,7 @@ return [
     'POST' => [
         '/login' => [AuthController::class, 'login'],
         '/register' => [AuthController::class, 'register'],
+        '/comment/submit' => [CommentController::class, 'submit'],
         '/admin/posts/create' => [AdminController::class, 'createPost'],
         '/admin/posts/{id}/edit' => [AdminController::class, 'editPost'],
         '/admin/users/{id}/edit' => [AdminController::class, 'editUser'],

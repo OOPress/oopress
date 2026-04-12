@@ -49,13 +49,23 @@ class PostController
         $categories = $post->getCategories();
         $tags = $post->getTags();
         
+        // Get auth instance
+        $auth = null;
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (isset($_SESSION['user_id'])) {
+            $auth = new \OOPress\Core\Auth(new \OOPress\Core\Session());
+        }
+        
         $content = $this->view->render('post/single', [
             'title' => $post->title,
             'post' => $post,
             'categories' => $categories,
             'tags' => $tags,
             'date_format' => Setting::get('date_format', 'F j, Y'),
-            'time_format' => Setting::get('time_format', 'g:i a')
+            'time_format' => Setting::get('time_format', 'g:i a'),
+            'auth' => $auth  // Add this line
         ]);
         
         return new Response($content);

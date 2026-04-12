@@ -170,4 +170,21 @@ class Post extends Model
             ]);
         }
     }
+
+    public function getComments(): array
+    {
+        return Comment::where([
+            'post_id' => $this->id,
+            'status' => 'approved',
+            'parent_id' => 0
+        ]);
+    }
+
+    public function getCommentCount(): int
+    {
+        return count(Comment::where([
+            'post_id' => $this->id,
+            'status' => 'approved'
+        ]));
+    }
 }
