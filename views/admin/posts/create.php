@@ -1,5 +1,7 @@
 <?php $this->layout('layouts/admin') ?>
 
+<?php $this->insert('partials/tinymce') ?>
+
 <h1><?= __('Create New Post') ?></h1>
 
 <?php if ($error): ?>

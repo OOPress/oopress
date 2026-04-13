@@ -1,5 +1,7 @@
 <?php $this->layout('layouts/admin') ?>
 
+<?php $this->insert('partials/tinymce') ?>
+
 <h1><?= __('Edit Post') ?>: <?= $this->e($post->title) ?></h1>
 
 <?php if ($error): ?>
