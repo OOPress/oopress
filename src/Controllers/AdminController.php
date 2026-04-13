@@ -88,7 +88,17 @@ class AdminController
         if ($request->method() === 'POST') {
             $title = $request->input('title');
             $slug = $this->createSlug($title);
-            $content = $request->input('content');
+            
+            // Get content based on format
+            $format = $request->input('content_format', 'tinymce');
+            $content = match($format) {
+                'tinymce' => $request->input('content'),
+                'html' => $request->input('content_html'),
+                'markdown' => $request->input('content_markdown'),
+                'php' => $request->input('content_php'),
+                default => $request->input('content')
+            };
+            
             $excerpt = $request->input('excerpt');
             $status = $request->input('status', 'draft');
             $categories = $request->input('categories', []);
@@ -106,6 +116,7 @@ class AdminController
                 'title' => $title,
                 'slug' => $slug,
                 'content' => $content,
+                'content_format' => $format,  // Add this line
                 'excerpt' => $excerpt,
                 'status' => $status,
                 'type' => 'post',
@@ -160,9 +171,31 @@ class AdminController
         
         if ($request->method() === 'POST') {
             $post->title = $request->input('title');
-            $post->content = $request->input('content');
+            
+            // Get content based on format
+            $format = $request->input('content_format', 'tinymce');
+            $content = match($format) {
+                'tinymce' => $request->input('content'),
+                'html' => $request->input('content_html'),
+                'markdown' => $request->input('content_markdown'),
+                'php' => $request->input('content_php'),
+                default => $request->input('content')
+            };
+            
+            $post->content = $content;
+            $post->content_format = $format;  // Add this line
             $post->excerpt = $request->input('excerpt');
             $post->status = $request->input('status', 'draft');
+            
+            // SEO fields
+            $post->meta_title = $request->input('meta_title');
+            $post->meta_description = $request->input('meta_description');
+            $post->meta_keywords = $request->input('meta_keywords');
+            $post->canonical_url = $request->input('canonical_url');
+            $post->og_title = $request->input('og_title');
+            $post->og_description = $request->input('og_description');
+            $post->og_image = $request->input('og_image');
+            $post->schema_type = $request->input('schema_type');
             
             $categories = $request->input('categories', []);
             $tags = $request->input('tags', []);

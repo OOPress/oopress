@@ -6,6 +6,156 @@
     <div class="alert alert-error"><?= $error ?></div>
 <?php endif; ?>
 
+<!-- Content Format Selector -->
+<div class="meta-box">
+    <h3><?= __('Content Format') ?></h3>
+    <div class="meta-box-content">
+        <div class="format-selector">
+            <?php 
+            $formats = [
+                'tinymce' => ['label' => 'TinyMCE', 'icon' => '📝', 'desc' => 'Rich text editor'],
+                'html' => ['label' => 'HTML', 'icon' => '🔧', 'desc' => 'Raw HTML code'],
+                'markdown' => ['label' => 'Markdown', 'icon' => '📄', 'desc' => 'Markdown syntax'],
+                'php' => ['label' => 'PHP', 'icon' => '⚙️', 'desc' => 'PHP code (restricted)']
+            ];
+            
+            foreach ($formats as $key => $format):
+                $checked = ($post->content_format ?? 'tinymce') === $key ? 'checked' : '';
+            ?>
+                <label class="format-option <?= $key ?>">
+                    <input type="radio" name="content_format" value="<?= $key ?>" <?= $checked ?> data-format="<?= $key ?>">
+                    <span class="format-icon"><?= $format['icon'] ?></span>
+                    <span class="format-name"><?= $format['label'] ?></span>
+                    <span class="format-desc"><?= $format['desc'] ?></span>
+                </label>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+
+<!-- Content Editor -->
+<div class="form-group">
+    <label for="content"><?= __('Content') ?></label>
+    
+    <!-- TinyMCE Editor (default) -->
+    <textarea id="content-tinymce" name="content" style="display:none;"><?= $this->e($post->content) ?></textarea>
+    
+    <!-- HTML Editor (CodeMirror) -->
+    <textarea id="content-html" name="content_html" style="display:none;" class="code-editor"><?= $this->e($post->content) ?></textarea>
+    
+    <!-- Markdown Editor -->
+    <textarea id="content-markdown" name="content_markdown" style="display:none;" class="code-editor"><?= $this->e($post->content) ?></textarea>
+    
+    <!-- PHP Editor -->
+    <textarea id="content-php" name="content_php" style="display:none;" class="code-editor php-editor"><?= $this->e($post->content) ?></textarea>
+</div>
+
+<style>
+.format-selector {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.format-option {
+    flex: 1;
+    min-width: 120px;
+    padding: 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.format-option:hover {
+    border-color: #4299e1;
+    background: #ebf8ff;
+}
+
+.format-option input {
+    display: none;
+}
+
+.format-option.selected {
+    border-color: #4299e1;
+    background: #ebf8ff;
+}
+
+.format-icon {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.format-name {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.format-desc {
+    font-size: 11px;
+    color: #718096;
+}
+
+.code-editor {
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    background: #1a202c;
+    color: #e2e8f0;
+    padding: 15px;
+    border-radius: 8px;
+    width: 100%;
+    min-height: 500px;
+}
+</style>
+
+<script>
+// Format selector logic
+document.querySelectorAll('.format-option input').forEach(radio => {
+    radio.addEventListener('change', function() {
+        // Update selected class
+        document.querySelectorAll('.format-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        this.closest('.format-option').classList.add('selected');
+        
+        // Show/hide appropriate editor
+        const format = this.value;
+        document.querySelectorAll('[id^="content-"]').forEach(editor => {
+            editor.style.display = 'none';
+        });
+        
+        if (format === 'tinymce') {
+            document.getElementById('content-tinymce').style.display = 'block';
+            // Initialize TinyMCE if not already
+            if (typeof tinymce !== 'undefined' && !tinymce.get('content-tinymce')) {
+                tinymce.init({
+                    selector: '#content-tinymce',
+                    height: 500,
+                    menubar: true,
+                    plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount',
+                    toolbar: 'undo redo | blocks | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | link image media | help',
+                    image_title: true,
+                    automatic_uploads: true
+                });
+            }
+        } else {
+            document.getElementById(`content-${format}`).style.display = 'block';
+            // Destroy TinyMCE if exists
+            if (typeof tinymce !== 'undefined' && tinymce.get('content-tinymce')) {
+                tinymce.get('content-tinymce').remove();
+            }
+        }
+    });
+});
+
+// Trigger initial format selection
+document.querySelector('.format-option input:checked').dispatchEvent(new Event('change'));
+</script>
+
 <div class="post-editor-layout">
     <div class="post-editor-main">
         <form method="POST" action="/admin/posts/<?= $post->id ?>/edit">

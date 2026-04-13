@@ -10,6 +10,7 @@ use OOPress\Http\Request;
 use OOPress\Http\Response;
 use League\Plates\Engine;
 use OOPress\Core\SEO;
+use OOPress\Core\ContentParser;
 
 class HomeController
 {
@@ -59,6 +60,13 @@ class HomeController
     {
         $slug = $request->attribute('slug');
         $post = Post::firstWhere(['slug' => $slug, 'status' => 'published']);
+
+        $parser = new ContentParser();
+        $parsedContent = $parser->parse($post->content, $post->content_format ?? 'tinymce', [
+            'post' => $post,
+            'user' => $auth ? $auth->user() : null
+        ]);
+        
         
         if (!$post) {
             $content = $this->view->render('errors/404', [
@@ -94,7 +102,9 @@ class HomeController
             'date_format' => Setting::get('date_format', 'F j, Y'),
             'time_format' => Setting::get('time_format', 'g:i a'),
             'auth' => $auth,
-            'seo' => $seo  
+            'seo' => $seo,
+            'parsed_content' => $parsedContent,
+            'content_format' => $post->content_format
         ]);
         
         return new Response($content);

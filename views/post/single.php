@@ -32,8 +32,18 @@ if (!isset($auth)) {
     <?php endif; ?>
     
     <div class="post-content">
-        <?= $post->content ?>
+        <?php if (isset($parsed_content)): ?>
+            <?= $parsed_content ?>
+        <?php else: ?>
+            <?= $post->content ?>
+        <?php endif; ?>
     </div>
+
+    <?php if ($content_format === 'php'): ?>
+        <div class="notice notice-warning">
+            <?= __('This content uses PHP. Please ensure you trust the source.') ?>
+        </div>
+    <?php endif; ?>
     
     <?php if (!empty($tags)): ?>
         <div class="post-tags">
