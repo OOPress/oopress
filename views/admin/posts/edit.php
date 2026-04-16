@@ -136,6 +136,7 @@ document.querySelectorAll('.format-option input').forEach(radio => {
             if (typeof tinymce !== 'undefined' && !tinymce.get('content-tinymce')) {
                 tinymce.init({
                     selector: '#content-tinymce',
+                    license_key: 'gpl', // Required for TinyMCE 8 - confirms open-source use
                     height: 500,
                     menubar: true,
                     plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount',
