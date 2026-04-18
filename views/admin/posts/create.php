@@ -8,45 +8,45 @@
     <div class="alert alert-error"><?= $error ?></div>
 <?php endif; ?>
 
-<!-- Content Format Selector -->
-<div class="meta-box">
-    <h3><?= __('Content Format') ?></h3>
-    <div class="meta-box-content">
-        <div class="format-selector">
-            <?php 
-            $formats = [
-                'tinymce' => ['label' => 'TinyMCE', 'icon' => '📝', 'desc' => 'Rich text editor'],
-                'html' => ['label' => 'HTML', 'icon' => '🔧', 'desc' => 'Raw HTML code'],
-                'markdown' => ['label' => 'Markdown', 'icon' => '📄', 'desc' => 'Markdown syntax'],
-                'php' => ['label' => 'PHP', 'icon' => '⚙️', 'desc' => 'PHP code (restricted)']
-            ];
-            
-            foreach ($formats as $key => $format):
-                $checked = $key === 'tinymce' ? 'checked' : '';
-            ?>
-                <label class="format-option <?= $key ?>">
-                    <input type="radio" name="content_format" value="<?= $key ?>" <?= $checked ?> data-format="<?= $key ?>">
-                    <span class="format-icon"><?= $format['icon'] ?></span>
-                    <span class="format-name"><?= $format['label'] ?></span>
-                    <span class="format-desc"><?= $format['desc'] ?></span>
-                </label>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</div>
-
 <form method="POST" action="/admin/posts/create">
     <div class="form-group">
         <label for="title"><?= __('Title') ?> *</label>
         <input type="text" id="title" name="title" required autofocus>
     </div>
-    
+
+    <!-- Content Format Selector -->
+    <div class="meta-box">
+        <h3><?= __('Content Format') ?></h3>
+        <div class="meta-box-content">
+            <div class="format-selector">
+                <?php 
+                $formats = [
+                    'tinymce' => ['label' => 'TinyMCE', 'icon' => '📝', 'desc' => 'Rich text editor'],
+                    'html' => ['label' => 'HTML', 'icon' => '🔧', 'desc' => 'Raw HTML code'],
+                    'markdown' => ['label' => 'Markdown', 'icon' => '📄', 'desc' => 'Markdown syntax'],
+                    'php' => ['label' => 'PHP', 'icon' => '⚙️', 'desc' => 'PHP code (restricted)']
+                ];
+                
+                foreach ($formats as $key => $format):
+                    $checked = $key === 'tinymce' ? 'checked' : '';
+                ?>
+                    <label class="format-option <?= $key ?>">
+                        <input type="radio" name="content_format" value="<?= $key ?>" <?= $checked ?> data-format="<?= $key ?>">
+                        <span class="format-icon"><?= $format['icon'] ?></span>
+                        <span class="format-name"><?= $format['label'] ?></span>
+                        <span class="format-desc"><?= $format['desc'] ?></span>
+                    </label>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+
     <!-- Content Editor -->
     <div class="form-group">
-        <label for="content"><?= __('Content') ?></label>
+        <label for="content-tinymce"><?= __('Content') ?></label>
         
         <!-- TinyMCE Editor -->
-        <textarea id="content-tinymce" name="content" style="display:block;"><?= $this->e($post->content ?? '') ?></textarea>
+        <textarea id="content-tinymce" name="content"><?= $this->e($post->content ?? '') ?></textarea>
         
         <!-- HTML Editor -->
         <textarea id="content-html" name="content_html" style="display:none;" class="code-editor"><?= $this->e($post->content ?? '') ?></textarea>
@@ -71,125 +71,127 @@
         </select>
     </div>
     
-    <!-- Categories -->
-    <div class="meta-box">
-        <h3><?= __('Categories') ?></h3>
-        <div class="meta-box-content">
-            <?php
-            $categoryTaxonomy = OOPress\Models\Taxonomy::firstWhere(['slug' => 'category']);
-            $allCategories = OOPress\Models\Term::where(['taxonomy_id' => $categoryTaxonomy->id ?? 0]);
-            ?>
-            
-            <?php if (empty($allCategories)): ?>
-                <p><?= __('No categories yet.') ?> <a href="/admin/categories"><?= __('Create one') ?></a></p>
-            <?php else: ?>
-                <ul class="taxonomy-checkbox-list">
-                    <?php foreach ($allCategories as $category): ?>
-                        <li>
-                            <label>
-                                <input type="checkbox" name="categories[]" value="<?= $category->id ?>">
-                                <?= $this->e($category->name) ?>
-                            </label>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            <?php endif; ?>
-        </div>
-    </div>
-    
-    <!-- Tags -->
-    <div class="meta-box">
-        <h3><?= __('Tags') ?></h3>
-        <div class="meta-box-content">
-            <?php
-            $tagTaxonomy = OOPress\Models\Taxonomy::firstWhere(['slug' => 'tag']);
-            $allTags = OOPress\Models\Term::where(['taxonomy_id' => $tagTaxonomy->id ?? 0]);
-            ?>
-            
-            <?php if (empty($allTags)): ?>
-                <p><?= __('No tags yet.') ?> <a href="/admin/tags"><?= __('Create one') ?></a></p>
-            <?php else: ?>
-                <div class="tag-selector">
-                    <select id="tag-select" style="width: 100%; margin-bottom: 10px;">
-                        <option value=""><?= __('Add a tag...') ?></option>
-                        <?php foreach ($allTags as $tag): ?>
-                            <option value="<?= $tag->id ?>" data-name="<?= $this->e($tag->name) ?>">
-                                <?= $this->e($tag->name) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    
-                    <div id="selected-tags" class="selected-tags"></div>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-    
-    <!-- SEO Settings -->
-    <div class="meta-box">
-        <h3><?= __('SEO Settings') ?></h3>
-        <div class="meta-box-content">
-            <div class="form-group">
-                <label for="meta_title"><?= __('Meta Title') ?></label>
-                <input type="text" id="meta_title" name="meta_title">
-                <small><?= __('Leave blank to use post title. Recommended: 50-60 characters.') ?></small>
-            </div>
-            
-            <div class="form-group">
-                <label for="meta_description"><?= __('Meta Description') ?></label>
-                <textarea id="meta_description" name="meta_description" rows="3"></textarea>
-                <small><?= __('Recommended: 150-160 characters.') ?></small>
-            </div>
-            
-            <div class="form-group">
-                <label for="meta_keywords"><?= __('Meta Keywords') ?></label>
-                <input type="text" id="meta_keywords" name="meta_keywords">
-                <small><?= __('Comma-separated keywords') ?></small>
-            </div>
-            
-            <div class="form-group">
-                <label for="canonical_url"><?= __('Canonical URL') ?></label>
-                <input type="url" id="canonical_url" name="canonical_url">
-            </div>
-            
-            <h4><?= __('Open Graph (Social Media)') ?></h4>
-            
-            <div class="form-group">
-                <label for="og_title"><?= __('OG Title') ?></label>
-                <input type="text" id="og_title" name="og_title">
-            </div>
-            
-            <div class="form-group">
-                <label for="og_description"><?= __('OG Description') ?></label>
-                <textarea id="og_description" name="og_description" rows="2"></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="og_image"><?= __('OG Image URL') ?></label>
-                <input type="url" id="og_image" name="og_image">
-            </div>
-            
-            <div class="form-group">
-                <label for="schema_type"><?= __('Schema Type') ?></label>
-                <select id="schema_type" name="schema_type">
-                    <option value="Article">Article</option>
-                    <option value="BlogPosting">BlogPosting</option>
-                    <option value="NewsArticle">NewsArticle</option>
-                    <option value="Review">Review</option>
-                </select>
-            </div>
-        </div>
-    </div>
-    
     <button type="submit" class="btn btn-primary"><?= __('Create Post') ?></button>
     <a href="/admin/posts" class="btn btn-secondary"><?= __('Cancel') ?></a>
 </form>
+
+<!-- Categories Box -->
+<div class="meta-box">
+    <h3><?= __('Categories') ?></h3>
+    <div class="meta-box-content">
+        <?php
+        $categoryTaxonomy = OOPress\Models\Taxonomy::firstWhere(['slug' => 'category']);
+        $allCategories = OOPress\Models\Term::where(['taxonomy_id' => $categoryTaxonomy->id ?? 0]);
+        ?>
+        
+        <?php if (empty($allCategories)): ?>
+            <p><?= __('No categories yet.') ?> <a href="/admin/categories"><?= __('Create one') ?></a></p>
+        <?php else: ?>
+            <ul class="taxonomy-checkbox-list">
+                <?php foreach ($allCategories as $category): ?>
+                    <li>
+                        <label>
+                            <input type="checkbox" name="categories[]" value="<?= $category->id ?>">
+                            <?= $this->e($category->name) ?>
+                        </label>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Tags Box -->
+<div class="meta-box">
+    <h3><?= __('Tags') ?></h3>
+    <div class="meta-box-content">
+        <?php
+        $tagTaxonomy = OOPress\Models\Taxonomy::firstWhere(['slug' => 'tag']);
+        $allTags = OOPress\Models\Term::where(['taxonomy_id' => $tagTaxonomy->id ?? 0]);
+        ?>
+        
+        <?php if (empty($allTags)): ?>
+            <p><?= __('No tags yet.') ?> <a href="/admin/tags"><?= __('Create one') ?></a></p>
+        <?php else: ?>
+            <div class="tag-selector">
+                <select id="tag-select" style="width: 100%; margin-bottom: 10px;">
+                    <option value=""><?= __('Add a tag...') ?></option>
+                    <?php foreach ($allTags as $tag): ?>
+                        <option value="<?= $tag->id ?>" data-name="<?= $this->e($tag->name) ?>">
+                            <?= $this->e($tag->name) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                
+                <div id="selected-tags" class="selected-tags"></div>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- SEO Settings -->
+<div class="meta-box">
+    <h3><?= __('SEO Settings') ?></h3>
+    <div class="meta-box-content">
+        <div class="form-group">
+            <label for="meta_title"><?= __('Meta Title') ?></label>
+            <input type="text" id="meta_title" name="meta_title">
+            <small><?= __('Leave blank to use post title. Recommended: 50-60 characters.') ?></small>
+        </div>
+        
+        <div class="form-group">
+            <label for="meta_description"><?= __('Meta Description') ?></label>
+            <textarea id="meta_description" name="meta_description" rows="3"></textarea>
+            <small><?= __('Recommended: 150-160 characters.') ?></small>
+        </div>
+        
+        <div class="form-group">
+            <label for="meta_keywords"><?= __('Meta Keywords') ?></label>
+            <input type="text" id="meta_keywords" name="meta_keywords">
+            <small><?= __('Comma-separated keywords') ?></small>
+        </div>
+        
+        <div class="form-group">
+            <label for="canonical_url"><?= __('Canonical URL') ?></label>
+            <input type="url" id="canonical_url" name="canonical_url">
+        </div>
+        
+        <h4><?= __('Open Graph (Social Media)') ?></h4>
+        
+        <div class="form-group">
+            <label for="og_title"><?= __('OG Title') ?></label>
+            <input type="text" id="og_title" name="og_title">
+        </div>
+        
+        <div class="form-group">
+            <label for="og_description"><?= __('OG Description') ?></label>
+            <textarea id="og_description" name="og_description" rows="2"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="og_image"><?= __('OG Image URL') ?></label>
+            <input type="url" id="og_image" name="og_image">
+            <button type="button" id="select-image-btn" class="btn btn-secondary"><?= __('Select from Media') ?></button>
+        </div>
+        
+        <div class="form-group">
+            <label for="schema_type"><?= __('Schema Type') ?></label>
+            <select id="schema_type" name="schema_type">
+                <option value="Article">Article</option>
+                <option value="BlogPosting">BlogPosting</option>
+                <option value="NewsArticle">NewsArticle</option>
+                <option value="Review">Review</option>
+            </select>
+        </div>
+    </div>
+</div>
 
 <style>
 .format-selector {
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
 .format-option {
@@ -246,6 +248,25 @@
     min-height: 500px;
 }
 
+.meta-box {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.meta-box h3 {
+    margin: 0;
+    padding: 12px 15px;
+    background: #edf2f7;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 16px;
+}
+
+.meta-box-content {
+    padding: 15px;
+}
+
 .taxonomy-checkbox-list {
     list-style: none;
     margin: 0;
@@ -256,6 +277,16 @@
 
 .taxonomy-checkbox-list li {
     margin-bottom: 8px;
+}
+
+.taxonomy-checkbox-list label {
+    cursor: pointer;
+}
+
+.tag-selector select {
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
 }
 
 .selected-tags {
@@ -284,9 +315,73 @@
     font-size: 14px;
     padding: 0 4px;
 }
+
+.tag .remove-tag:hover {
+    color: #fed7d7;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.form-group input[type="text"],
+.form-group input[type="url"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: #4299e1;
+    color: white;
+}
+
+.btn-secondary {
+    background: #e2e8f0;
+    color: #4a5568;
+}
 </style>
 
 <script>
+// Initialize TinyMCE on page load
+document.addEventListener('DOMContentLoaded', function() {
+    var selectedFormat = document.querySelector('input[name="content_format"]:checked');
+    if (selectedFormat && selectedFormat.value === 'tinymce') {
+        if (typeof tinymce !== 'undefined' && !tinymce.get('content-tinymce')) {
+            tinymce.init({
+                selector: '#content-tinymce',
+                license_key: 'gpl',
+                height: 500,
+                menubar: true,
+                plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount',
+                toolbar: 'undo redo | blocks | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | link image media | help',
+                image_title: true,
+                branding: false,
+                promotion: false,
+                automatic_uploads: true
+            });
+        }
+    }
+});
+
 // Format selector logic
 document.querySelectorAll('.format-option input').forEach(radio => {
     radio.addEventListener('change', function() {
@@ -296,6 +391,7 @@ document.querySelectorAll('.format-option input').forEach(radio => {
         this.closest('.format-option').classList.add('selected');
         
         const format = this.value;
+        
         document.querySelectorAll('[id^="content-"]').forEach(editor => {
             editor.style.display = 'none';
         });
@@ -305,11 +401,15 @@ document.querySelectorAll('.format-option input').forEach(radio => {
             if (typeof tinymce !== 'undefined' && !tinymce.get('content-tinymce')) {
                 tinymce.init({
                     selector: '#content-tinymce',
-                    license_key: 'gpl', // Required for TinyMCE 8 - confirms open-source use
+                    license_key: 'gpl',
                     height: 500,
                     menubar: true,
                     plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount',
-                    toolbar: 'undo redo | blocks | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | link image media | help'
+                    toolbar: 'undo redo | blocks | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | link image media | help',
+                    image_title: true,
+                    branding: false,
+                    promotion: false,
+                    automatic_uploads: true
                 });
             }
         } else {
@@ -320,9 +420,6 @@ document.querySelectorAll('.format-option input').forEach(radio => {
         }
     });
 });
-
-// Trigger initial format selection
-document.querySelector('.format-option input:checked').dispatchEvent(new Event('change'));
 
 // Tags functionality
 const tagSelect = document.getElementById('tag-select');
@@ -349,4 +446,12 @@ if (tagSelect) {
         }
     });
 }
+
+// Media selector
+document.getElementById('select-image-btn')?.addEventListener('click', function() {
+    let url = prompt('Enter image URL from media library:');
+    if (url) {
+        document.getElementById('og_image').value = url;
+    }
+});
 </script>
