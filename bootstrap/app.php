@@ -18,6 +18,7 @@ use OOPress\Http\Middleware\GuestMiddleware;
 
 // Load Composer autoloader
 require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../src/Core/helpers.php';
 
 // Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');

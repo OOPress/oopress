@@ -36,6 +36,8 @@ return [
         '/admin/comments/{id}/spam' => [CommentController::class, 'spam'],
         '/admin/comments/{id}/trash' => [CommentController::class, 'trash'],
         '/admin/comments/{id}/delete' => [CommentController::class, 'delete'],
+        '/admin/themes' => [ThemeController::class, 'index'],
+        '/admin/themes/activate' => [ThemeController::class, 'activate'],
 
         '/sitemap.xml' => [SitemapController::class, 'index'],
 

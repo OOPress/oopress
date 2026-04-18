@@ -11,6 +11,7 @@ use OOPress\Http\Response;
 use League\Plates\Engine;
 use OOPress\Core\SEO;
 use OOPress\Core\ContentParser;
+use OOPress\Core\Theme\ThemeManager;
 
 class HomeController
 {
@@ -23,6 +24,9 @@ class HomeController
     
     public function index(Request $request): Response
     {
+        $themeManager = new ThemeManager();
+        $this->view = new Engine($themeManager->getThemeViewPath());
+        
         // Get settings
         $postsPerPage = (int)Setting::get('posts_per_page', 10);
         $showExcerpt = (bool)Setting::get('show_excerpt', true);
@@ -36,9 +40,22 @@ class HomeController
         $allPosts = Post::where(['status' => 'published']);
         $totalPosts = count($allPosts);
         $posts = array_slice($allPosts, $offset, $postsPerPage);
-
-        $seo = new SEO();
+        
+        // Get auth for layout
+        $auth = null;
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (isset($_SESSION['user_id'])) {
+            $auth = new \OOPress\Core\Auth(new \OOPress\Core\Session());
+        }
+        
+        // Get SEO
+        $seo = new \OOPress\Core\SEO();
         $seo->setHomepage();
+        
+        // Pass theme asset URL to view
+        $themeAssetUrl = $themeManager->getThemeAssetUrl('');
         
         $content = $this->view->render('home', [
             'title' => Setting::get('site_title', 'OOPress'),
@@ -50,7 +67,9 @@ class HomeController
             'total_pages' => ceil($totalPosts / $postsPerPage),
             'date_format' => Setting::get('date_format', 'F j, Y'),
             'time_format' => Setting::get('time_format', 'g:i a'),
-            'seo' => $seo
+            'auth' => $auth,
+            'seo' => $seo,
+            'theme_asset_url' => $themeAssetUrl
         ]);
         
         return new Response($content);
@@ -64,7 +83,7 @@ class HomeController
         $parser = new ContentParser();
         $parsedContent = $parser->parse($post->content, $post->content_format ?? 'tinymce', [
             'post' => $post,
-            'user' => $auth ? $auth->user() : null
+            'user' => auth() ? auth()->user() : null,
         ]);
         
         

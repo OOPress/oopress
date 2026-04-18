@@ -1,0 +1,143 @@
+/* Default Theme Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    color: #2d3748;
+    background: #f7fafc;
+}
+
+header {
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 2rem;
+}
+
+nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 1.5rem;
+}
+
+nav a {
+    color: #4a5568;
+    text-decoration: none;
+}
+
+nav a:hover {
+    color: #4299e1;
+}
+
+main {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+footer {
+    text-align: center;
+    padding: 2rem;
+    color: #718096;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 3rem;
+}
+
+.hero {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.tagline {
+    color: #718096;
+    font-size: 1.2rem;
+}
+
+.post-preview {
+    background: white;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.post-preview h2 {
+    margin-bottom: 0.5rem;
+}
+
+.post-preview h2 a {
+    color: #2d3748;
+    text-decoration: none;
+}
+
+.post-preview h2 a:hover {
+    color: #4299e1;
+}
+
+.post-meta {
+    font-size: 0.875rem;
+    color: #718096;
+    margin-bottom: 1rem;
+}
+
+.post-meta a {
+    color: #4299e1;
+    text-decoration: none;
+}
+
+.post-excerpt {
+    color: #4a5568;
+    margin-bottom: 1rem;
+}
+
+.read-more {
+    color: #4299e1;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.read-more:hover {
+    text-decoration: underline;
+}
+
+.pagination {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.pagination a, .pagination .current-page {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.pagination a {
+    background: white;
+    color: #4a5568;
+}
+
+.pagination a:hover {
+    background: #4299e1;
+    color: white;
+}
+
+.pagination .current-page {
+    background: #4299e1;
+    color: white;
+}
