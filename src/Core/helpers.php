@@ -115,3 +115,21 @@ if (!function_exists('apply_filters')) {
         return \OOPress\Core\Plugin\Hook::applyFilters($hook, $value, ...$args);
     }
 }
+
+if (!function_exists('cache')) {
+    function cache(): \OOPress\Core\Cache\CacheManager
+    {
+        static $cache = null;
+        if ($cache === null) {
+            $cache = new \OOPress\Core\Cache\CacheManager();
+        }
+        return $cache;
+    }
+}
+
+if (!function_exists('cache_remember')) {
+    function cache_remember(string $key, callable $callback, ?int $ttl = null)
+    {
+        return cache()->remember($key, $callback, $ttl);
+    }
+}

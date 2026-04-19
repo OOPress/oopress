@@ -18,6 +18,14 @@ class Response
     }
     
     /**
+     * Get all headers
+     */
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    /**
      * Create JSON response
      */
     public static function json(array $data, int $statusCode = 200): self

@@ -12,6 +12,7 @@ use League\Plates\Engine;
 use OOPress\Core\SEO;
 use OOPress\Core\ContentParser;
 use OOPress\Core\Theme\ThemeManager;
+use OOPress\Core\Cache\PageCache;
 
 class HomeController
 {
@@ -24,6 +25,14 @@ class HomeController
     
     public function index(Request $request): Response
     {
+            $pageCache = new PageCache(new \OOPress\Core\Cache\CacheManager());
+    
+        // Check if page is cached
+        $cachedResponse = $pageCache->get($request);
+        if ($cachedResponse) {
+            return $cachedResponse;
+        }
+
         $themeManager = new ThemeManager();
         $this->view = new Engine($themeManager->getThemeViewPath());
         
@@ -71,8 +80,12 @@ class HomeController
             'seo' => $seo,
             'theme_asset_url' => $themeAssetUrl
         ]);
+
+        // Store in cache
+        $response = new Response($content);
+        $pageCache->set($request, $response);
         
-        return new Response($content);
+        return $response;
     }
     
     public function show(Request $request): Response

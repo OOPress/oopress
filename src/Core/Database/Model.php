@@ -6,6 +6,7 @@ namespace OOPress\Core\Database;
 
 use Medoo\Medoo;
 use InvalidArgumentException;
+use OOPress\Core\Cache\CacheManager;
 
 abstract class Model
 {
@@ -115,12 +116,29 @@ abstract class Model
     }
     
     /**
-     * Find by ID
+     * Get cache instance
+     */
+    protected static function getCache(): CacheManager
+    {
+        static $cache = null;
+        if ($cache === null) {
+            $cache = new CacheManager();
+        }
+        return $cache;
+    }
+    
+    /**
+     * Find by ID (with cache)
      */
     public static function find(int $id): ?static
     {
-        $data = static::$db->get(static::$table, '*', ['id' => $id]);
-        return $data ? new static($data) : null;
+        $cache = self::getCache();
+        $key = static::$table . '_find_' . $id;
+        
+        return $cache->remember($key, function() use ($id) {
+            $data = static::$db->get(static::$table, '*', ['id' => $id]);
+            return $data ? new static($data) : null;
+        });
     }
     
     /**
@@ -163,7 +181,7 @@ abstract class Model
     }
     
     /**
-     * Save model to database
+     * Save model to database (with cache invalidation)
      */
     public function save(): bool
     {
@@ -171,16 +189,25 @@ abstract class Model
         
         if (isset($this->attributes['id']) && $this->attributes['id']) {
             $result = static::$db->update(static::$table, $attributes, ['id' => $this->attributes['id']]);
-            return $result !== null;
+            $saved = $result !== null;
         } else {
             unset($attributes['id']);
             $id = static::$db->insert(static::$table, $attributes);
             if ($id) {
                 $this->attributes['id'] = $id;
-                return true;
+                $saved = true;
+            } else {
+                $saved = false;
             }
-            return false;
         }
+        
+        if ($saved) {
+            // Invalidate cache for this model
+            self::getCache()->delete(static::$table . '_find_' . $this->id);
+            self::getCache()->delete(static::$table . '_all');
+        }
+        
+        return $saved;
     }
     
     /**
@@ -193,25 +220,38 @@ abstract class Model
         }
         
         $result = static::$db->delete(static::$table, ['id' => $this->attributes['id']]);
-        return $result !== null;
+        
+        if ($result !== null) {
+            // Invalidate cache
+            self::getCache()->delete(static::$table . '_find_' . $this->id);
+            self::getCache()->delete(static::$table . '_all');
+            return true;
+        }
+        
+        return false;
     }
     
     /**
-     * Convert to array
+     * Relationship: belongs to
      */
-    // Add relationship methods
     public function belongsTo(string $related, string $foreignKey = null): ?Model
     {
         $foreignKey = $foreignKey ?? strtolower(class_basename($related)) . '_id';
         return $related::find($this->$foreignKey);
     }
     
+    /**
+     * Relationship: has many
+     */
     public function hasMany(string $related, string $foreignKey = null): array
     {
         $foreignKey = $foreignKey ?? strtolower(class_basename(static::class)) . '_id';
         return $related::where([$foreignKey => $this->id]);
     }
     
+    /**
+     * Load relation
+     */
     public static function with(string $relation, array $conditions = []): array
     {
         $models = static::where($conditions);
@@ -223,6 +263,9 @@ abstract class Model
         return $models;
     }
     
+    /**
+     * Load a single relation
+     */
     protected function loadRelation(string $relation): void
     {
         if (method_exists($this, $relation)) {
@@ -230,6 +273,9 @@ abstract class Model
         }
     }
     
+    /**
+     * Convert to array
+     */
     public function toArray(): array
     {
         $attributes = $this->attributes;
@@ -241,7 +287,9 @@ abstract class Model
         return array_merge($attributes, $this->relations);
     }
     
-    // Add query builder methods
+    /**
+     * Get query builder
+     */
     public static function query(): QueryBuilder
     {
         return new QueryBuilder(static::class);
