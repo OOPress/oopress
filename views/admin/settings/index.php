@@ -16,6 +16,7 @@
             <li><a href="?group=comments" class="<?= $current_group === 'comments' ? 'active' : '' ?>"><?= __('Comments') ?></a></li>
             <li><a href="?group=seo" class="<?= $current_group === 'seo' ? 'active' : '' ?>"><?= __('SEO') ?></a></li>
             <li><a href="?group=media" class="<?= $current_group === 'media' ? 'active' : '' ?>"><?= __('Media') ?></a></li>
+            <li><a href="?group=cookies" class="<?= $current_group === 'cookies' ? 'active' : '' ?>"><?= __('Cookies') ?></a></li>
             <li><a href="?group=advanced" class="<?= $current_group === 'advanced' ? 'active' : '' ?>"><?= __('Advanced') ?></a></li>
         </ul>
     </div>
@@ -64,6 +65,29 @@
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                        <?php endif; ?>
+
+                        <?php if ($current_group === 'cookies'): ?>
+                            <div class="setting-field">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="cookie_banner_enabled" value="1" <?= \OOPress\Models\Setting::get('cookie_banner_enabled', true) ? 'checked' : '' ?>>
+                                    <?= __('Enable Cookie Banner') ?>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-field">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="cookie_analytics_enabled" value="1" <?= \OOPress\Models\Setting::get('cookie_analytics_enabled', false) ? 'checked' : '' ?>>
+                                    <?= __('Enable Analytics Cookies') ?>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-field">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="cookie_marketing_enabled" value="1" <?= \OOPress\Models\Setting::get('cookie_marketing_enabled', false) ? 'checked' : '' ?>>
+                                    <?= __('Enable Marketing Cookies') ?>
+                                </label>
+                            </div>
                         <?php endif; ?>
                         
                         <?php if ($setting['description']): ?>

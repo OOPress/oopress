@@ -29,5 +29,11 @@
     </footer>
     
     <script src="<?= $this->e($theme_asset_url ?? '/themes/default/assets/') ?>js/script.js"></script>
+
+    <!-- Cookie Banner -->
+    <?php
+    $cookieConsent = new \OOPress\Core\CookieConsent();
+    echo $cookieConsent->renderBanner();
+    ?>
 </body>
 </html>

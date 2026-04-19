@@ -11,6 +11,7 @@ use OOPress\Controllers\CommentController;
 use OOPress\Controllers\SitemapController;
 use OOPress\Controllers\PluginController;
 use OOPress\Controllers\CacheController;
+use OOPress\Controllers\CookieController;
 
 $languages = 'en|es|fr|de|it|pt|ru|ja|zh|ar';
 
@@ -88,5 +89,7 @@ return [
         '/admin/plugins/activate' => [PluginController::class, 'activate'],
         '/admin/plugins/deactivate' => [PluginController::class, 'deactivate'],
         '/admin/cache/clear' => [CacheController::class, 'clear'],
+        '/cookie-consent/set' => [CookieController::class, 'setConsent'],
+        '/cookie-consent/revoke' => [CookieController::class, 'revokeConsent'],
     ],
 ];
