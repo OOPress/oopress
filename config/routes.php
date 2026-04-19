@@ -9,6 +9,7 @@ use OOPress\Controllers\TaxonomyController;
 use OOPress\Controllers\SettingsController;
 use OOPress\Controllers\CommentController;
 use OOPress\Controllers\SitemapController;
+use OOPress\Controllers\PluginController;
 
 $languages = 'en|es|fr|de|it|pt|ru|ja|zh|ar';
 
@@ -38,6 +39,7 @@ return [
         '/admin/comments/{id}/delete' => [CommentController::class, 'delete'],
         '/admin/themes' => [ThemeController::class, 'index'],
         '/admin/themes/activate' => [ThemeController::class, 'activate'],
+        '/admin/plugins' => [PluginController::class, 'index'],
 
         '/sitemap.xml' => [SitemapController::class, 'index'],
 
@@ -81,5 +83,7 @@ return [
         '/admin/tags/create' => [TaxonomyController::class, 'createTag'],
         '/admin/tags/{id}/edit' => [TaxonomyController::class, 'editTag'],
         '/admin/settings/save' => [SettingsController::class, 'save'],
+        '/admin/plugins/activate' => [PluginController::class, 'activate'],
+        '/admin/plugins/deactivate' => [PluginController::class, 'deactivate'],
     ],
 ];

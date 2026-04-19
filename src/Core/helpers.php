@@ -87,3 +87,31 @@ if (!function_exists('auth')) {
         return null;
     }
 }
+
+if (!function_exists('add_action')) {
+    function add_action(string $hook, callable $callback, int $priority = 10, int $acceptedArgs = 1): void
+    {
+        \OOPress\Core\Plugin\Hook::addAction($hook, $callback, $priority, $acceptedArgs);
+    }
+}
+
+if (!function_exists('do_action')) {
+    function do_action(string $hook, ...$args): void
+    {
+        \OOPress\Core\Plugin\Hook::doAction($hook, ...$args);
+    }
+}
+
+if (!function_exists('add_filter')) {
+    function add_filter(string $hook, callable $callback, int $priority = 10, int $acceptedArgs = 1): void
+    {
+        \OOPress\Core\Plugin\Hook::addFilter($hook, $callback, $priority, $acceptedArgs);
+    }
+}
+
+if (!function_exists('apply_filters')) {
+    function apply_filters(string $hook, $value, ...$args): mixed
+    {
+        return \OOPress\Core\Plugin\Hook::applyFilters($hook, $value, ...$args);
+    }
+}

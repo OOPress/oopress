@@ -38,13 +38,17 @@ class Setting extends Model
         
         $value = $setting->setting_value;
         
+        // Try to decode JSON if it's an array
+        $decoded = json_decode($value, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            $value = $decoded;
+        }
+        
         // Cast based on type
         if ($setting->setting_type === 'checkbox') {
             $value = (bool)$value;
-        } elseif ($setting->setting_type === 'number' || $setting->setting_type === 'text') {
-            if (is_numeric($value)) {
-                $value = (int)$value;
-            }
+        } elseif ($setting->setting_type === 'number') {
+            $value = (int)$value;
         }
         
         self::$cache[$key] = $value;
@@ -56,6 +60,11 @@ class Setting extends Model
      */
     public static function set(string $key, $value): bool
     {
+        // Convert array to JSON for storage
+        if (is_array($value)) {
+            $value = json_encode($value);
+        }
+        
         $setting = self::firstWhere(['setting_key' => $key]);
         
         if ($setting) {
@@ -65,8 +74,8 @@ class Setting extends Model
             $setting = new self([
                 'setting_key' => $key,
                 'setting_value' => (string)$value,
-                'setting_type' => 'text',
-                'setting_group' => 'general',
+                'setting_type' => is_array($value) ? 'array' : 'text',
+                'setting_group' => 'plugins',
                 'setting_label' => $key
             ]);
             $result = $setting->save();

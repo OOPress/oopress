@@ -1,0 +1,6 @@
+{
+    "name": "Demo Plugin",
+    "description": "A demo plugin showing OOPress hooks and filters",
+    "version": "1.0.0",
+    "author": "OOPress"
+}

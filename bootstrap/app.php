@@ -6,7 +6,6 @@ use OOPress\Core\Application;
 use OOPress\Core\Router;
 use OOPress\Core\Database\Model;
 use Medoo\Medoo;
-// Initialize i18n
 use OOPress\Core\I18n\Translator;
 use OOPress\Http\Middleware\LanguageMiddleware;
 use OOPress\Core\Session;
@@ -14,7 +13,7 @@ use OOPress\Core\Auth;
 use OOPress\Http\Middleware\AdminMiddleware;
 use OOPress\Http\Middleware\AuthMiddleware;
 use OOPress\Http\Middleware\GuestMiddleware;
-
+use OOPress\Core\Plugin\PluginManager;
 
 // Load Composer autoloader
 require __DIR__ . '/../vendor/autoload.php';
@@ -73,6 +72,15 @@ $db = new Medoo([
 
 Model::setDB($db);
 
+// Load plugin system (MOVE THIS HERE)
+//use OOPress\Core\Plugin\PluginManager;
+
+$pluginManager = new PluginManager();
+$pluginManager->loadActivePluginsFromDB();
+
+// Store in container
+$app->getContainer()->singleton(PluginManager::class, fn() => $pluginManager);
+
 // Bind database to container
 $app->getContainer()->singleton(Medoo::class, fn() => $db);
 
@@ -83,6 +91,7 @@ $auth = new Auth($session);
 // Bind to container
 $app->getContainer()->singleton(Session::class, fn() => $session);
 $app->getContainer()->singleton(Auth::class, fn() => $auth);
+
 
 // Manually register middleware instances
 $app->getContainer()->instance('OOPress\Http\Middleware\AdminMiddleware', new \OOPress\Http\Middleware\AdminMiddleware());
