@@ -1,7 +1,9 @@
 <?php $this->layout('layouts/app') ?>
 
-<div class="auth-container">
-    <h1><?= __('Login') ?></h1>
+<div class="auth-logo">
+        <h1><span style="color: #FF8C00;">OO</span><span style="color: #707070;">Press</span></h1>
+    </div>
+    <h2><?= __('Login') ?></h2>
     
     <?php if ($error): ?>
         <div class="alert alert-error"><?= $this->e($error) ?></div>

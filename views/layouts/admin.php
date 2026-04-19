@@ -11,7 +11,9 @@
     <div class="admin-wrapper">
         <nav class="admin-nav">
             <div class="admin-nav-brand">
-                <a href="/admin">OOPress Admin</a>
+                <a href="/admin">
+                    <span style="color: #FF8C00;">OO</span><span style="color: #707070;">Press</span>
+                </a>
             </div>
             <ul class="admin-nav-menu">
                 <li><a href="/admin"><?= __('Dashboard') ?></a></li>
