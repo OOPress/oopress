@@ -16,6 +16,7 @@
             <ul class="admin-nav-menu">
                 <li><a href="/admin"><?= __('Dashboard') ?></a></li>
                 <li><a href="/admin/posts"><?= __('Posts') ?></a></li>
+                <li><a href="/admin/pages"><?= __('Pages') ?></a></li>
                 <li><a href="/admin/users"><?= __('Users') ?></a></li>
                 <li><a href="/admin/media"><?= __('Media') ?></a></li>
                 <li><a href="/admin/categories"><?= __('Categories') ?></a></li>

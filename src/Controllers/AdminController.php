@@ -12,6 +12,7 @@ use League\Plates\Engine;
 use OOPress\Models\Term;
 use OOPress\Models\Taxonomy;
 use OOPress\Core\SEO;
+use OOPress\Models\Page;
 
 class AdminController
 {
@@ -254,6 +255,177 @@ class AdminController
         return new Response($content);
     }
     
+    public function pages(Request $request): Response
+    {
+        if (!$this->checkAdminAccess()) {
+            return $this->denyAccess();
+        }
+        
+        $pages = Page::query()->orderBy('menu_order', 'ASC')->get();
+        
+        $content = $this->view->render('admin/pages/index', [
+            'title' => __('Manage Pages'),
+            'pages' => $pages
+        ]);
+        
+        return new Response($content);
+    }
+
+    public function createPage(Request $request): Response
+    {
+        if (!$this->checkAdminAccess()) {
+            return $this->denyAccess();
+        }
+        
+        if ($request->method() === 'POST') {
+            $title = $request->input('title');
+            $slug = $this->createPageSlug($title);
+            $content = $request->input('content');
+            $excerpt = $request->input('excerpt');
+            $status = $request->input('status', 'draft');
+            $parentId = (int)$request->input('parent_id', 0);
+            $menuOrder = (int)$request->input('menu_order', 0);
+            $showInMenu = $request->input('show_in_menu', 0) ? 1 : 0;
+            $pageTemplate = $request->input('page_template', 'default');
+            
+            // SEO fields
+            $metaTitle = $request->input('meta_title');
+            $metaDescription = $request->input('meta_description');
+            $metaKeywords = $request->input('meta_keywords');
+            
+            $page = new Page([
+                'title' => $title,
+                'slug' => $slug,
+                'content' => $content,
+                'excerpt' => $excerpt,
+                'status' => $status,
+                'parent_id' => $parentId,
+                'menu_order' => $menuOrder,
+                'show_in_menu' => $showInMenu,
+                'page_template' => $pageTemplate,
+                'author_id' => $_SESSION['user_id'],
+                'meta_title' => $metaTitle,
+                'meta_description' => $metaDescription,
+                'meta_keywords' => $metaKeywords
+            ]);
+            
+            if ($page->save()) {
+                return Response::redirect('/admin/pages');
+            }
+            
+            $error = __('Failed to create page');
+        }
+        
+        $content = $this->view->render('admin/pages/create', [
+            'title' => __('Create New Page'),
+            'error' => $error ?? null,
+            'pages' => Page::where(['status' => 'published']),
+            'templates' => $this->getPageTemplates()
+            ]); 
+        return new Response($content);
+    }
+
+    public function editPage(Request $request): Response
+    {
+        if (!$this->checkAdminAccess()) {
+            return $this->denyAccess();
+        }
+        
+        $id = (int)$request->attribute('id');
+        $page = Page::find($id);
+        
+        if (!$page) {
+            return new Response('Page not found', 404);
+        }
+        
+        if ($request->method() === 'POST') {
+            $page->title = $request->input('title');
+            $page->content = $request->input('content');
+            $page->excerpt = $request->input('excerpt');
+            $page->status = $request->input('status', 'draft');
+            $page->parent_id = (int)$request->input('parent_id', 0);
+            $page->menu_order = (int)$request->input('menu_order', 0);
+            $page->show_in_menu = $request->input('show_in_menu', 0) ? 1 : 0;
+            $page->page_template = $request->input('page_template', 'default');
+            
+            // SEO fields
+            $page->meta_title = $request->input('meta_title');
+            $page->meta_description = $request->input('meta_description');
+            $page->meta_keywords = $request->input('meta_keywords');
+            
+            if ($page->save()) {
+                return Response::redirect('/admin/pages');
+            }
+            
+            $error = __('Failed to update page');
+        }
+        
+        $content = $this->view->render('admin/pages/edit', [
+            'title' => __('Edit Page'),
+            'page' => $page,
+            'error' => $error ?? null,
+            'pages' => Page::where(['status' => 'published']),
+            'templates' => $this->getPageTemplates()
+        ]);
+        
+        return new Response($content);
+    }
+
+    public function deletePage(Request $request): Response
+    {
+        if (!$this->checkAdminAccess()) {
+            return $this->denyAccess();
+        }
+        
+        $id = (int)$request->attribute('id');
+        $page = Page::find($id);
+        
+        if ($page) {
+            $page->delete();
+        }
+        
+        return Response::redirect('/admin/pages');
+    }
+
+    private function createPageSlug(string $title): string
+    {
+        $slug = strtolower(trim($title));
+        $slug = preg_replace('/[^a-z0-9-]/', '-', $slug);
+        $slug = preg_replace('/-+/', '-', $slug);
+        $slug = trim($slug, '-');
+        
+        $original = $slug;
+        $counter = 1;
+        while (Page::firstWhere(['slug' => $slug])) {
+            $slug = $original . '-' . $counter;
+            $counter++;
+        }
+        
+        return $slug;
+    }
+
+    private function getPageTemplates(): array
+    {
+        $templates = [
+            'default' => 'Default Template'
+        ];
+        
+        $themeManager = new \OOPress\Core\Theme\ThemeManager();
+        $themePath = $themeManager->getThemeViewPath();
+        
+        // Look for page-*.php files in theme
+        if (is_dir($themePath)) {
+            $files = glob($themePath . 'page-*.php');
+            foreach ($files as $file) {
+                $template = basename($file, '.php');
+                $templateName = str_replace('page-', '', $template);
+                $templates[$templateName] = ucfirst(str_replace('-', ' ', $templateName));
+            }
+        }
+        
+        return $templates;
+    }
+
     public function editUser(Request $request): Response
     {
         if (!$this->checkAdminAccess()) {

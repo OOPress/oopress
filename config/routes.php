@@ -12,6 +12,7 @@ use OOPress\Controllers\SitemapController;
 use OOPress\Controllers\PluginController;
 use OOPress\Controllers\CacheController;
 use OOPress\Controllers\CookieController;
+use OOPress\Controllers\PageController;
 
 $languages = 'en|es|fr|de|it|pt|ru|ja|zh|ar';
 
@@ -43,6 +44,10 @@ return [
         '/admin/themes/activate' => [ThemeController::class, 'activate'],
         '/admin/plugins' => [PluginController::class, 'index'],
         '/admin/cache' => [CacheController::class, 'index'],
+        '/admin/pages' => [AdminController::class, 'pages'],
+        '/admin/pages/create' => [AdminController::class, 'createPage'],
+        '/admin/pages/{id}/edit' => [AdminController::class, 'editPage'],
+        '/admin/pages/{id}/delete' => [AdminController::class, 'deletePage'],
 
         '/sitemap.xml' => [SitemapController::class, 'index'],
 
@@ -60,6 +65,7 @@ return [
         '/post/{slug}' => [HomeController::class, 'show'],
         '/category/{slug}' => [HomeController::class, 'category'],
         '/tag/{slug}' => [HomeController::class, 'tag'],
+        '/{slug}' => [PageController::class, 'show'],
         
         // Language routes
         '/{lang:' . $languages . '}' => [HomeController::class, 'index'],
@@ -91,5 +97,7 @@ return [
         '/admin/cache/clear' => [CacheController::class, 'clear'],
         '/cookie-consent/set' => [CookieController::class, 'setConsent'],
         '/cookie-consent/revoke' => [CookieController::class, 'revokeConsent'],
+        '/admin/pages/create' => [AdminController::class, 'createPage'],
+        '/admin/pages/{id}/edit' => [AdminController::class, 'editPage'],
     ],
 ];

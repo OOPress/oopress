@@ -11,6 +11,11 @@
     <header>
         <nav>
             <a href="/"><?= __('Home') ?></a>
+            
+            <?php foreach (oop_menu() as $menuPage): ?>
+                <a href="<?= $menuPage->getUrl() ?>"><?= $this->e($menuPage->title) ?></a>
+            <?php endforeach; ?>
+            
             <?php if (auth() && auth()->check()): ?>
                 <a href="/dashboard"><?= __('Dashboard') ?></a>
                 <a href="/logout"><?= __('Logout') ?></a>

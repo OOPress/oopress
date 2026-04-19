@@ -181,35 +181,38 @@ abstract class Model
     }
     
     /**
-     * Save model to database (with cache invalidation)
+     * Save model to database
      */
     public function save(): bool
     {
         $attributes = $this->toArray();
         
         if (isset($this->attributes['id']) && $this->attributes['id']) {
+            // Update existing record
             $result = static::$db->update(static::$table, $attributes, ['id' => $this->attributes['id']]);
             $saved = $result !== null;
-        } else {
-            unset($attributes['id']);
-            $id = static::$db->insert(static::$table, $attributes);
-            if ($id) {
-                $this->attributes['id'] = $id;
-                $saved = true;
-            } else {
-                $saved = false;
+            
+            if ($saved) {
+                self::getCache()->delete(static::$table . '_find_' . $this->attributes['id']);
+                self::getCache()->delete(static::$table . '_all');
             }
+            
+            return $saved;
+        } else {
+            // Insert new record
+            unset($attributes['id']);
+            $result = static::$db->insert(static::$table, $attributes);
+            
+            // Check if result is numeric (the insert ID)
+            if (is_numeric($result) && $result > 0) {
+                $this->attributes['id'] = (int)$result;
+                return true;
+            }
+            
+            return false;
         }
-        
-        if ($saved) {
-            // Invalidate cache for this model
-            self::getCache()->delete(static::$table . '_find_' . $this->id);
-            self::getCache()->delete(static::$table . '_all');
-        }
-        
-        return $saved;
     }
-    
+
     /**
      * Delete model
      */

@@ -133,3 +133,10 @@ if (!function_exists('cache_remember')) {
         return cache()->remember($key, $callback, $ttl);
     }
 }
+
+if (!function_exists('oop_menu')) {
+    function oop_menu(): array
+    {
+        return \OOPress\Models\Page::getMenuPages();
+    }
+}
