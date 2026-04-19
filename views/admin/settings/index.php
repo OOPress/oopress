@@ -17,6 +17,7 @@
             <li><a href="?group=seo" class="<?= $current_group === 'seo' ? 'active' : '' ?>"><?= __('SEO') ?></a></li>
             <li><a href="?group=media" class="<?= $current_group === 'media' ? 'active' : '' ?>"><?= __('Media') ?></a></li>
             <li><a href="?group=cookies" class="<?= $current_group === 'cookies' ? 'active' : '' ?>"><?= __('Cookies') ?></a></li>
+            <li><a href="?group=contact" class="<?= $current_group === 'contact' ? 'active' : '' ?>"><?= __('Contact') ?></a></li>
             <li><a href="?group=advanced" class="<?= $current_group === 'advanced' ? 'active' : '' ?>"><?= __('Advanced') ?></a></li>
         </ul>
     </div>
@@ -87,6 +88,46 @@
                                     <input type="checkbox" name="cookie_marketing_enabled" value="1" <?= \OOPress\Models\Setting::get('cookie_marketing_enabled', false) ? 'checked' : '' ?>>
                                     <?= __('Enable Marketing Cookies') ?>
                                 </label>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($current_group === 'contact'): ?>
+                            <div class="setting-field">
+                                <label for="contact_email"><?= __('Contact Email') ?></label>
+                                <input type="email" id="contact_email" name="contact_email" value="<?= $this->e($settings['contact']['contact_email']['value'] ?? '') ?>">
+                                <small><?= __('Email address where contact form submissions are sent') ?></small>
+                            </div>
+                            
+                            <h3><?= __('SMTP Settings') ?></h3>
+                            <small><?= __('Leave empty to use PHP mail() function') ?></small>
+                            
+                            <div class="setting-field">
+                                <label for="smtp_host"><?= __('SMTP Host') ?></label>
+                                <input type="text" id="smtp_host" name="smtp_host" value="<?= $this->e($settings['contact']['smtp_host']['value'] ?? '') ?>">
+                            </div>
+                            
+                            <div class="setting-field">
+                                <label for="smtp_port"><?= __('SMTP Port') ?></label>
+                                <input type="text" id="smtp_port" name="smtp_port" value="<?= $this->e($settings['contact']['smtp_port']['value'] ?? '2525') ?>">
+                            </div>
+                            
+                            <div class="setting-field">
+                                <label for="smtp_username"><?= __('SMTP Username') ?></label>
+                                <input type="text" id="smtp_username" name="smtp_username" value="<?= $this->e($settings['contact']['smtp_username']['value'] ?? '') ?>">
+                            </div>
+                            
+                            <div class="setting-field">
+                                <label for="smtp_password"><?= __('SMTP Password') ?></label>
+                                <input type="password" id="smtp_password" name="smtp_password" value="<?= $this->e($settings['contact']['smtp_password']['value'] ?? '') ?>">
+                            </div>
+                            
+                            <div class="setting-field">
+                                <label for="smtp_encryption"><?= __('SMTP Encryption') ?></label>
+                                <select id="smtp_encryption" name="smtp_encryption">
+                                    <option value="tls" <?= ($settings['contact']['smtp_encryption']['value'] ?? 'tls') === 'tls' ? 'selected' : '' ?>>TLS</option>
+                                    <option value="ssl" <?= ($settings['contact']['smtp_encryption']['value'] ?? '') === 'ssl' ? 'selected' : '' ?>>SSL</option>
+                                    <option value="none" <?= ($settings['contact']['smtp_encryption']['value'] ?? '') === 'none' ? 'selected' : '' ?>>None</option>
+                                </select>
                             </div>
                         <?php endif; ?>
                         

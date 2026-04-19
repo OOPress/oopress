@@ -16,6 +16,9 @@
                 <a href="<?= $menuPage->getUrl() ?>"><?= $this->e($menuPage->title) ?></a>
             <?php endforeach; ?>
             
+            <!-- Add contact link manually -->
+            <a href="/contact"><?= __('Contact') ?></a>
+            
             <?php if (auth() && auth()->check()): ?>
                 <a href="/dashboard"><?= __('Dashboard') ?></a>
                 <a href="/logout"><?= __('Logout') ?></a>

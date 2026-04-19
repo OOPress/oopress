@@ -13,6 +13,7 @@ use OOPress\Controllers\PluginController;
 use OOPress\Controllers\CacheController;
 use OOPress\Controllers\CookieController;
 use OOPress\Controllers\PageController;
+use OOPress\Controllers\ContactController;
 
 $languages = 'en|es|fr|de|it|pt|ru|ja|zh|ar';
 
@@ -65,7 +66,7 @@ return [
         '/post/{slug}' => [HomeController::class, 'show'],
         '/category/{slug}' => [HomeController::class, 'category'],
         '/tag/{slug}' => [HomeController::class, 'tag'],
-        '/{slug}' => [PageController::class, 'show'],
+        '/contact' => [ContactController::class, 'show'],
         
         // Language routes
         '/{lang:' . $languages . '}' => [HomeController::class, 'index'],
@@ -76,6 +77,9 @@ return [
         '/{lang:' . $languages . '}/login' => [AuthController::class, 'showLogin'],
         '/{lang:' . $languages . '}/register' => [AuthController::class, 'showRegister'],
         '/{lang:' . $languages . '}/dashboard' => [AuthController::class, 'dashboard'],
+
+        // PAGE ROUTE - MUST BE ABSOLUTELY LAST
+        '/{slug}' => [PageController::class, 'show'],
     ],
     
     'POST' => [
@@ -99,5 +103,6 @@ return [
         '/cookie-consent/revoke' => [CookieController::class, 'revokeConsent'],
         '/admin/pages/create' => [AdminController::class, 'createPage'],
         '/admin/pages/{id}/edit' => [AdminController::class, 'editPage'],
+        '/contact/submit' => [ContactController::class, 'submit'],
     ],
 ];
