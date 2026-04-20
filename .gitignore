@@ -5,3 +5,6 @@
 .idea/
 .DS_Store
 composer.lock
+/storage/installed.lock
+/storage/cache/*
+!.gitkeep

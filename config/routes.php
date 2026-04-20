@@ -14,11 +14,19 @@ use OOPress\Controllers\CacheController;
 use OOPress\Controllers\CookieController;
 use OOPress\Controllers\PageController;
 use OOPress\Controllers\ContactController;
+use OOPress\Controllers\InstallController;
 
 $languages = 'en|es|fr|de|it|pt|ru|ja|zh|ar';
 
 return [
     'GET' => [
+        // Installation routes (must be first, before anything else)
+        '/install/welcome' => [InstallController::class, 'welcome'],
+        '/install/database' => [InstallController::class, 'database'],
+        '/install/admin' => [InstallController::class, 'admin'],
+        '/install/site' => [InstallController::class, 'site'],
+        '/install/run' => [InstallController::class, 'run'],
+
         // Admin routes
         '/admin' => [AdminController::class, 'dashboard'],
         '/admin/posts' => [AdminController::class, 'posts'],

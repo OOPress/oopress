@@ -15,6 +15,15 @@ use OOPress\Http\Middleware\AuthMiddleware;
 use OOPress\Http\Middleware\GuestMiddleware;
 use OOPress\Core\Plugin\PluginManager;
 
+// Check if installed (skip for install routes)
+$requestUri = $_SERVER['REQUEST_URI'] ?? '';
+$isInstallRoute = strpos($requestUri, '/install') === 0;
+
+if (!$isInstallRoute && !file_exists(__DIR__ . '/../storage/installed.lock')) {
+    header('Location: /install/welcome');
+    exit;
+}
+
 // Load Composer autoloader
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../src/Core/helpers.php';
