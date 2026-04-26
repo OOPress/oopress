@@ -1,2 +1,4 @@
-// Default theme scripts
-console.log('OOPress theme loaded');
+// OOPress Default Theme Scripts
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('OOPress theme loaded');
+});
