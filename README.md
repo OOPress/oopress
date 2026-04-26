@@ -18,12 +18,19 @@ Lean, modern PHP CMS built on clean OOP architecture.
 ## Features
 
 ✅ Modern Architecture - MVC, OOP, PSR standards
+
 ✅ Easy to Use - Intuitive admin interface
+
 ✅ SEO Ready - Built-in SEO tools
+
 ✅ Multi-language - i18n support
+
 ✅ GDPR Compliant - Cookie consent banner
+
 ✅ Extensible - Plugin and theme system
+
 ✅ Fast - Built-in caching
+
 ✅ Secure - Input validation, CSRF protection
 
 
