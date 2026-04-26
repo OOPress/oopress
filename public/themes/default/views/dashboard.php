@@ -5,6 +5,7 @@
     
     <div class="dashboard-welcome">
         <p><?= __('Welcome back,') ?> <strong><?= $this->e($user->display_name ?? $user->username) ?></strong>!</p>
+        <p class="version-info"><?= __('Running') ?> <?= oopress_name() ?> v<?= oopress_version() ?></p>
     </div>
     
     <div class="dashboard-grid">

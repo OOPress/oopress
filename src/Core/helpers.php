@@ -140,3 +140,17 @@ if (!function_exists('oop_menu')) {
         return \OOPress\Models\Page::getMenuPages();
     }
 }
+
+if (!function_exists('oopress_version')) {
+    function oopress_version(): string
+    {
+        return '1.0.0';
+    }
+}
+
+if (!function_exists('oopress_name')) {
+    function oopress_name(): string
+    {
+        return 'OOPress';
+    }
+}

@@ -40,7 +40,7 @@
     
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; <?= date('Y') ?> <span class="oo">OO</span><span class="press">Press</span></p>
+            <p>&copy; <?= date('Y') ?> <span class="oo">OO</span><span class="press">Press</span> v<?= oopress_version() ?></p>
             <div class="footer-links">
                 <a href="/privacy-policy"><?= __('Privacy Policy') ?></a>
                 <a href="/imprint"><?= __('Imprint') ?></a>
