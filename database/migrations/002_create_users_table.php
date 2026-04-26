@@ -21,16 +21,6 @@ return new class {
                 INDEX idx_username (username)
             )
         ");
-        
-        // Create admin user (password: admin123)
-        $db->insert('users', [
-            'username' => 'admin',
-            'email' => 'admin@oopress.com',
-            'password' => password_hash('admin123', PASSWORD_BCRYPT),
-            'display_name' => 'Administrator',
-            'role' => 'admin',
-            'status' => 'active'
-        ]);
     }
     
     public function down(Medoo $db): void

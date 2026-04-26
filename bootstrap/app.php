@@ -15,12 +15,33 @@ use OOPress\Http\Middleware\AuthMiddleware;
 use OOPress\Http\Middleware\GuestMiddleware;
 use OOPress\Core\Plugin\PluginManager;
 
-// Check if installed (skip for install routes)
+// Check if installer is running - skip everything else
 $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-$isInstallRoute = strpos($requestUri, '/install') === 0;
+$isInstalling = strpos($requestUri, '/install') === 0;
 
-if (!$isInstallRoute && !file_exists(__DIR__ . '/../storage/installed.lock')) {
-    header('Location: /install/welcome');
+if ($isInstalling) {
+    // Load minimal setup for installer
+    require __DIR__ . '/../vendor/autoload.php';
+    
+    // Start session for installer
+    session_start();
+    
+    // Load installer controller
+    $router = new OOPress\Core\Router(new OOPress\Core\Container());
+    
+    // Only register install routes
+    $router->get('/install/welcome', [OOPress\Controllers\InstallController::class, 'welcome']);
+    $router->get('/install/database', [OOPress\Controllers\InstallController::class, 'database']);
+    $router->post('/install/database', [OOPress\Controllers\InstallController::class, 'database']);
+    $router->get('/install/admin', [OOPress\Controllers\InstallController::class, 'admin']);
+    $router->post('/install/admin', [OOPress\Controllers\InstallController::class, 'admin']);
+    $router->get('/install/site', [OOPress\Controllers\InstallController::class, 'site']);
+    $router->post('/install/site', [OOPress\Controllers\InstallController::class, 'site']);
+    $router->get('/install/run', [OOPress\Controllers\InstallController::class, 'run']);
+    
+    $request = OOPress\Http\Request::fromGlobals();
+    $response = $router->dispatch($request);
+    $response->send();
     exit;
 }
 

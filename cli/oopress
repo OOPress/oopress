@@ -210,20 +210,13 @@ function migrateStatus(): void
 
 function dbSeed(): void
 {
+    echo "🌱 Seeding database...\n\n";
+    
     $db = require __DIR__ . '/../config/database.php';
-    $seederPath = __DIR__ . '/../database/seeders/DatabaseSeeder.php';
+    $seeder = require __DIR__ . '/../database/seeders/DatabaseSeeder.php';
+    $seeder->run($db);
     
-    if (!file_exists($seederPath)) {
-        echo "❌ DatabaseSeeder.php not found in database/seeders/\n";
-        return;
-    }
-    
-    $seeder = require $seederPath;
-    if (method_exists($seeder, 'run')) {
-        $seeder->run($db);
-    } else {
-        echo "❌ DatabaseSeeder must have a run() method\n";
-    }
+    echo "\n✅ Seeding complete!\n";
 }
 
 function cacheClear(): void

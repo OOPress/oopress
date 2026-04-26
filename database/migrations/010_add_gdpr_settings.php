@@ -12,15 +12,10 @@ return new class {
                 cookie_lifetime INT DEFAULT 365,
                 privacy_policy_page_id INT DEFAULT NULL,
                 imprint_page_id INT DEFAULT NULL,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )
         ");
-        
-        // Insert default settings
-        $db->insert('gdpr_settings', [
-            'cookie_consent_enabled' => 1,
-            'cookie_lifetime' => 365
-        ]);
+        // No INSERT - will be added by seeder
     }
     
     public function down(Medoo $db): void

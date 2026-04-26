@@ -20,24 +20,22 @@ return new class {
                 published_at TIMESTAMP NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                meta_title VARCHAR(255) DEFAULT NULL,
+                meta_description TEXT DEFAULT NULL,
+                meta_keywords VARCHAR(500) DEFAULT NULL,
+                canonical_url VARCHAR(500) DEFAULT NULL,
+                og_title VARCHAR(255) DEFAULT NULL,
+                og_description TEXT DEFAULT NULL,
+                og_image VARCHAR(500) DEFAULT NULL,
+                schema_type VARCHAR(50) DEFAULT 'Article',
+                content_format ENUM('html', 'markdown', 'tinymce', 'php') DEFAULT 'tinymce',
                 INDEX idx_status (status),
                 INDEX idx_slug (slug),
                 INDEX idx_author (author_id),
-                INDEX idx_published_at (published_at)
+                INDEX idx_published_at (published_at),
+                INDEX idx_type (type)
             )
         ");
-        
-        // Insert sample post
-        $db->insert('posts', [
-            'title' => 'Welcome to OOPress',
-            'slug' => 'welcome-to-oopress',
-            'content' => '<h1>Welcome!</h1><p>This is your first post on OOPress, the lean PHP CMS.</p>',
-            'excerpt' => 'Welcome to OOPress - a modern, lean PHP CMS',
-            'status' => 'published',
-            'type' => 'post',
-            'author_id' => 1,
-            'published_at' => date('Y-m-d H:i:s')
-        ]);
     }
     
     public function down(Medoo $db): void

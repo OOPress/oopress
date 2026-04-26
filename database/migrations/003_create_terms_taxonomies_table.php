@@ -11,7 +11,9 @@ return new class {
                 name VARCHAR(200) NOT NULL,
                 slug VARCHAR(200) NOT NULL UNIQUE,
                 description TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                taxonomy_id INT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_taxonomy (taxonomy_id)
             )
         ");
         
@@ -29,38 +31,15 @@ return new class {
             CREATE TABLE IF NOT EXISTS term_relationships (
                 object_id INT NOT NULL,
                 term_id INT NOT NULL,
-                taxonomy_id INT NOT NULL,
-                PRIMARY KEY (object_id, term_id, taxonomy_id)
+                PRIMARY KEY (object_id, term_id)
             )
         ");
-        
-        // Insert default taxonomies
-        $db->insert('taxonomies', [
-            'name' => 'Category',
-            'slug' => 'category',
-            'description' => 'Post categories',
-            'hierarchical' => true
-        ]);
-        
-        $db->insert('taxonomies', [
-            'name' => 'Tag',
-            'slug' => 'tag',
-            'description' => 'Post tags',
-            'hierarchical' => false
-        ]);
-        
-        // Insert default category
-        $db->insert('terms', [
-            'name' => 'Uncategorized',
-            'slug' => 'uncategorized',
-            'description' => 'Default category'
-        ]);
     }
     
     public function down(Medoo $db): void
     {
         $db->query("DROP TABLE IF EXISTS term_relationships");
-        $db->query("DROP TABLE IF EXISTS term_taxonomies");
         $db->query("DROP TABLE IF EXISTS terms");
+        $db->query("DROP TABLE IF EXISTS taxonomies");
     }
 };
