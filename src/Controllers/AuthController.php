@@ -19,7 +19,13 @@ class AuthController
     
     public function __construct(Auth $auth, Session $session)
     {
-        $this->view = new Engine(__DIR__ . '/../../views');
+        // Use theme view engine for dashboard, fallback to auth views for other templates
+        $themePath = __DIR__ . '/../../public/themes/default/views';
+        if (is_dir($themePath)) {
+            $this->view = new Engine($themePath);
+        } else {
+            $this->view = new Engine(__DIR__ . '/../../views');
+        }
         $this->auth = $auth;
         $this->session = $session;
     }
@@ -175,9 +181,20 @@ class AuthController
             return Response::redirect('/login');
         }
         
-        $content = $this->view->render('auth/dashboard', [
+        $user = $this->auth->user();
+        
+        // Get stats for admin/editor
+        $stats = [];
+        if ($user->role === 'admin' || $user->role === 'editor') {
+            $stats['total_posts'] = count(\OOPress\Models\Post::all());
+            $stats['published_posts'] = count(\OOPress\Models\Post::where(['status' => 'published']));
+            $stats['comments'] = count(\OOPress\Models\Comment::all());
+        }
+        
+        $content = $this->view->render('dashboard', [
             'title' => __('Dashboard'),
-            'user' => $this->auth->user()
+            'user' => $user,
+            'stats' => $stats
         ]);
         
         return new Response($content);

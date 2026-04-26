@@ -19,6 +19,7 @@ use OOPress\Core\Plugin\PluginManager;
 $requestUri = $_SERVER['REQUEST_URI'] ?? '';
 $isInstalling = strpos($requestUri, '/install') === 0;
 
+
 if ($isInstalling) {
     // Load minimal setup for installer
     require __DIR__ . '/../vendor/autoload.php';
@@ -26,23 +27,27 @@ if ($isInstalling) {
     // Start session for installer
     session_start();
     
-    // Load installer controller
+    // Load installer controller manually
+    $installController = new OOPress\Controllers\InstallController();
+    
     $router = new OOPress\Core\Router(new OOPress\Core\Container());
     
-    // Only register install routes
-    $router->get('/install', [OOPress\Controllers\InstallController::class, 'welcome']);
-    $router->get('/install/welcome', [OOPress\Controllers\InstallController::class, 'welcome']);
-    $router->get('/install/database', [OOPress\Controllers\InstallController::class, 'database']);
-    $router->post('/install/database', [OOPress\Controllers\InstallController::class, 'database']);
-    $router->get('/install/admin', [OOPress\Controllers\InstallController::class, 'admin']);
-    $router->post('/install/admin', [OOPress\Controllers\InstallController::class, 'admin']);
-    $router->get('/install/site', [OOPress\Controllers\InstallController::class, 'site']);
-    $router->post('/install/site', [OOPress\Controllers\InstallController::class, 'site']);
-    $router->get('/install/run', [OOPress\Controllers\InstallController::class, 'run']);
+    // Only register install routes with manual controller instance
+    $router->get('/install', [$installController, 'welcome']);
+    $router->get('/install/welcome', [$installController, 'welcome']);
+    $router->get('/install/database', [$installController, 'database']);
+    $router->post('/install/database', [$installController, 'database']);
+    $router->get('/install/admin', [$installController, 'admin']);
+    $router->post('/install/admin', [$installController, 'admin']);
+    $router->get('/install/site', [$installController, 'site']);
+    $router->post('/install/site', [$installController, 'site']);
+    $router->get('/install/run', [$installController, 'run']);
     
     $request = OOPress\Http\Request::fromGlobals();
     $response = $router->dispatch($request);
     $response->send();
+    
+    // Exit immediately after sending response to prevent continuing to main app
     exit;
 }
 
@@ -114,19 +119,22 @@ if (file_exists(__DIR__ . '/../.env') && isset($_ENV['DB_HOST']) && isset($_ENV[
     $app->getContainer()->singleton(PluginManager::class, fn() => $pluginManager);
 }
 
-// Initialize session and auth
-$session = new Session();
-$auth = new Auth($session);
+// Initialize session and auth only if not in installer mode
+// Also check if installed.lock exists to prevent Auth during installation
+$isInstalled = file_exists(__DIR__ . '/../storage/installed.lock');
+if (!$isInstalling && $isInstalled) {
+    $session = new Session();
+    $auth = new Auth($session);
 
-// Bind to container
-$app->getContainer()->singleton(Session::class, fn() => $session);
-$app->getContainer()->singleton(Auth::class, fn() => $auth);
-
-
-// Manually register middleware instances
-$app->getContainer()->instance('OOPress\Http\Middleware\AdminMiddleware', new \OOPress\Http\Middleware\AdminMiddleware());
-$app->getContainer()->instance('OOPress\Http\Middleware\AuthMiddleware', new \OOPress\Http\Middleware\AuthMiddleware());
-$app->getContainer()->instance('OOPress\Http\Middleware\GuestMiddleware', new \OOPress\Http\Middleware\GuestMiddleware());
+    // Bind to container
+    $app->getContainer()->singleton(Session::class, fn() => $session);
+    $app->getContainer()->singleton(Auth::class, fn() => $auth);
+    
+    // Manually register middleware instances
+    $app->getContainer()->instance('OOPress\Http\Middleware\AdminMiddleware', new \OOPress\Http\Middleware\AdminMiddleware());
+    $app->getContainer()->instance('OOPress\Http\Middleware\AuthMiddleware', new \OOPress\Http\Middleware\AuthMiddleware());
+    $app->getContainer()->instance('OOPress\Http\Middleware\GuestMiddleware', new \OOPress\Http\Middleware\GuestMiddleware());
+}
 
 // Load routes
 $router = $app->getContainer()->get(Router::class);

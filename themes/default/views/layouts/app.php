@@ -23,7 +23,7 @@
                 <?php endforeach; ?>
                 <a href="/contact"><?= __('Contact') ?></a>
                 <?php if (auth() && auth()->check()): ?>
-                    <a href="/dashboard"><?= __('Dashboard') ?></a>
+                    <a href="/admin"><?= __('Dashboard') ?></a>
                     <a href="/logout"><?= __('Logout') ?></a>
                 <?php else: ?>
                     <a href="/login"><?= __('Login') ?></a>

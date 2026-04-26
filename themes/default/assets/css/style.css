@@ -524,6 +524,102 @@ body {
     border-radius: 4px;
 }
 
+/* User Dashboard */
+.user-dashboard {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.user-dashboard h1 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-welcome {
+    background: #ebf8ff;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border-left: 4px solid #4299e1;
+}
+
+.dashboard-welcome p {
+    margin: 0;
+}
+
+.dashboard-welcome strong {
+    color: #2d3748;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.dashboard-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.dashboard-card h3 {
+    margin: 0;
+    padding: 1rem 1.5rem;
+    background: #f7fafc;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 1.1rem;
+}
+
+.card-content {
+    padding: 1.5rem;
+}
+
+.card-content p {
+    margin: 0.5rem 0;
+}
+
+.card-content p:first-child {
+    margin-top: 0;
+}
+
+.card-content p:last-child {
+    margin-bottom: 0;
+}
+
+.dashboard-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dashboard-links li {
+    margin: 0.75rem 0;
+}
+
+.dashboard-links li:first-child {
+    margin-top: 0;
+}
+
+.dashboard-links li:last-child {
+    margin-bottom: 0;
+}
+
+.dashboard-links a {
+    color: #4299e1;
+    text-decoration: none;
+    display: block;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.dashboard-links a:hover {
+    background: #ebf8ff;
+    text-decoration: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .site-header .container {
