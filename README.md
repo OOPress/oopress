@@ -94,8 +94,8 @@ php cli/oopress serve
 
 ## Documentation
 
-[User Guide](docs/en/user/getting-started.md)
-[Developer Guide](docs/en/developer/)
+[User Guide](docs/en/user/getting-started.md)<br>
+[Developer Guide](docs/en/developer/)<br>
 [API Reference]()
 
 ## License
@@ -104,6 +104,6 @@ php cli/oopress serve
 
 ## Links
 
-[Website](https://oopress.org)
-[Documentation](https://docs.oopress.org)
+[Website](https://oopress.org)<br>
+[Documentation](https://docs.oopress.org)<br>
 [GitHub](https://github.com/OOPress/oopress)
