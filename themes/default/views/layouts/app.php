@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $this->e($title ?? 'OOPress') ?></title>
-    <link rel="icon" type="image/svg+xml" href="<?= theme_asset('images/icon.svg') ?>">
+    <link rel="icon" type="image/x-icon" href="<?= theme_asset('images/icon.ico') ?>">
     <link rel="stylesheet" href="<?= theme_asset('css/style.css') ?>">
     <?= $this->section('seo') ?>
 </head>
