@@ -7,6 +7,7 @@ namespace OOPress\Controllers;
 use OOPress\Http\Request;
 use OOPress\Http\Response;
 use League\Plates\Engine;
+use Medoo\Medoo;
 
 class InstallController
 {
@@ -179,10 +180,16 @@ class InstallController
         $success = false;
         
         try {
-            // Connect to database
-            $dsn = "mysql:host={$_SESSION['install']['db_host']};dbname={$_SESSION['install']['db_name']};charset=utf8mb4";
-            $pdo = new \PDO($dsn, $_SESSION['install']['db_user'], $_SESSION['install']['db_pass']);
-            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            // Connect to database with Medoo
+            $database = new Medoo([
+                'type' => 'mysql',
+                'host' => $_SESSION['install']['db_host'],
+                'database' => $_SESSION['install']['db_name'],
+                'username' => $_SESSION['install']['db_user'],
+                'password' => $_SESSION['install']['db_pass'],
+                'charset' => 'utf8mb4',
+                'error' => \PDO::ERRMODE_EXCEPTION
+            ]);
             
             // Run migrations
             $migrationFiles = glob(__DIR__ . '/../../database/migrations/*.php');
@@ -191,24 +198,26 @@ class InstallController
             foreach ($migrationFiles as $file) {
                 $migration = require $file;
                 if (method_exists($migration, 'up')) {
-                    $migration->up($pdo);
+                    $migration->up($database);
                 }
             }
             
             // Insert settings
-            $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, setting_label) VALUES (?, ?, 'text', 'general', ?)");
-            $stmt->execute(['site_title', $_SESSION['install']['site_title'], 'Site Title']);
-            $stmt->execute(['site_tagline', $_SESSION['install']['site_tagline'], 'Tagline']);
-            $stmt->execute(['timezone', $_SESSION['install']['timezone'], 'Timezone']);
+            $database->insert('settings', [
+                ['setting_key' => 'site_title', 'setting_value' => $_SESSION['install']['site_title'], 'setting_type' => 'text', 'setting_group' => 'general', 'setting_label' => 'Site Title'],
+                ['setting_key' => 'site_tagline', 'setting_value' => $_SESSION['install']['site_tagline'], 'setting_type' => 'text', 'setting_group' => 'general', 'setting_label' => 'Tagline'],
+                ['setting_key' => 'timezone', 'setting_value' => $_SESSION['install']['timezone'], 'setting_type' => 'text', 'setting_group' => 'general', 'setting_label' => 'Timezone']
+            ]);
             
             // Create admin user
             $hashed = password_hash($_SESSION['install']['admin_password'], PASSWORD_BCRYPT);
-            $stmt = $pdo->prepare("INSERT INTO users (username, email, password, display_name, role, status) VALUES (?, ?, ?, ?, 'admin', 'active')");
-            $stmt->execute([
-                $_SESSION['install']['admin_username'],
-                $_SESSION['install']['admin_email'],
-                $hashed,
-                $_SESSION['install']['admin_username']
+            $database->insert('users', [
+                'username' => $_SESSION['install']['admin_username'],
+                'email' => $_SESSION['install']['admin_email'],
+                'password' => $hashed,
+                'display_name' => $_SESSION['install']['admin_username'],
+                'role' => 'admin',
+                'status' => 'active'
             ]);
             
             // Create .env file
@@ -226,6 +235,9 @@ class InstallController
             // Mark installed
             file_put_contents(__DIR__ . '/../../storage/installed.lock', date('Y-m-d H:i:s'));
             
+            // Store admin username for display before clearing session
+            $adminUsername = $_SESSION['install']['admin_username'];
+            
             // Clear install session
             unset($_SESSION['install']);
             
@@ -239,7 +251,8 @@ class InstallController
             'title' => 'Installation - Complete',
             'success' => $success,
             'error' => $error,
-            'step' => 5
+            'step' => 5,
+            'admin_username' => $adminUsername ?? null
         ]);
         
         return new Response($content);
@@ -248,13 +261,13 @@ class InstallController
     private function getPhpRequirements(): array
     {
         return [
-            ['name' => 'PHP Version 8.2+', 'current' => PHP_VERSION, 'passed' => version_compare(PHP_VERSION, '8.2', '>=')],
-            ['name' => 'PDO MySQL', 'current' => extension_loaded('pdo_mysql') ? 'Yes' : 'No', 'passed' => extension_loaded('pdo_mysql')],
-            ['name' => 'JSON', 'current' => extension_loaded('json') ? 'Yes' : 'No', 'passed' => extension_loaded('json')],
-            ['name' => 'MBString', 'current' => extension_loaded('mbstring') ? 'Yes' : 'No', 'passed' => extension_loaded('mbstring')],
-            ['name' => 'OpenSSL', 'current' => extension_loaded('openssl') ? 'Yes' : 'No', 'passed' => extension_loaded('openssl')],
-            ['name' => 'Fileinfo', 'current' => extension_loaded('fileinfo') ? 'Yes' : 'No', 'passed' => extension_loaded('fileinfo')],
-            ['name' => 'cURL', 'current' => extension_loaded('curl') ? 'Yes' : 'No', 'passed' => extension_loaded('curl')]
+            ['name' => 'PHP Version 8.2+', 'current' => PHP_VERSION, 'required' => '8.2+', 'passed' => version_compare(PHP_VERSION, '8.2', '>=')],
+            ['name' => 'PDO MySQL', 'current' => extension_loaded('pdo_mysql') ? 'Yes' : 'No', 'required' => 'Enabled', 'passed' => extension_loaded('pdo_mysql')],
+            ['name' => 'JSON', 'current' => extension_loaded('json') ? 'Yes' : 'No', 'required' => 'Enabled', 'passed' => extension_loaded('json')],
+            ['name' => 'MBString', 'current' => extension_loaded('mbstring') ? 'Yes' : 'No', 'required' => 'Enabled', 'passed' => extension_loaded('mbstring')],
+            ['name' => 'OpenSSL', 'current' => extension_loaded('openssl') ? 'Yes' : 'No', 'required' => 'Enabled', 'passed' => extension_loaded('openssl')],
+            ['name' => 'Fileinfo', 'current' => extension_loaded('fileinfo') ? 'Yes' : 'No', 'required' => 'Enabled', 'passed' => extension_loaded('fileinfo')],
+            ['name' => 'cURL', 'current' => extension_loaded('curl') ? 'Yes' : 'No', 'required' => 'Enabled', 'passed' => extension_loaded('curl')]
         ];
     }
     

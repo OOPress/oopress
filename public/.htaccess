@@ -6,7 +6,8 @@
     RewriteEngine On
 
     # Allow installer access (no redirect)
-    RewriteRule ^install/ - [L,NC]
+    RewriteRule ^install/?$ index.php [L,NC]
+    RewriteRule ^install/.*$ index.php [L,NC]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

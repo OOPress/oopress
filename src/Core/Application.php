@@ -94,6 +94,12 @@ class Application
     {
         $this->events->dispatch(new Events\ApplicationStarted($request));
         
+        // Check if installed and redirect to installer if not
+        $requestUri = $request->uri();
+        if (!file_exists($this->basePath . '/storage/installed.lock') && strpos($requestUri, '/install') !== 0) {
+            return new Response('', 302, ['Location' => '/install']);
+        }
+        
         $router = $this->container->get(Router::class);
         $response = $router->dispatch($request);
         

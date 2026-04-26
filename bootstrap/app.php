@@ -30,6 +30,7 @@ if ($isInstalling) {
     $router = new OOPress\Core\Router(new OOPress\Core\Container());
     
     // Only register install routes
+    $router->get('/install', [OOPress\Controllers\InstallController::class, 'welcome']);
     $router->get('/install/welcome', [OOPress\Controllers\InstallController::class, 'welcome']);
     $router->get('/install/database', [OOPress\Controllers\InstallController::class, 'database']);
     $router->post('/install/database', [OOPress\Controllers\InstallController::class, 'database']);
@@ -86,33 +87,32 @@ $translator->load('default');
 // Load configuration
 $app->loadConfig(__DIR__ . '/../config');
 
-// Setup database
-// Setup database - Correct Medoo configuration
-$db = new Medoo([
-    'type' => $_ENV['DB_TYPE'] ?? 'mysql',
-    'host' => $_ENV['DB_HOST'] ?? 'localhost',
-    'database' => $_ENV['DB_NAME'] ?? 'oopress',
-    'username' => $_ENV['DB_USER'] ?? 'root',
-    'password' => $_ENV['DB_PASS'] ?? '',
-    'charset' => 'utf8mb4',
-    'port' => (int)($_ENV['DB_PORT'] ?? 3306),
-    // Optional: for Unix sockets
-    // 'socket' => $_ENV['DB_SOCKET'] ?? null,
-]);
+// Setup database only if .env exists with required DB config
+if (file_exists(__DIR__ . '/../.env') && isset($_ENV['DB_HOST']) && isset($_ENV['DB_NAME'])) {
+    $db = new Medoo([
+        'type' => $_ENV['DB_TYPE'] ?? 'mysql',
+        'host' => $_ENV['DB_HOST'],
+        'database' => $_ENV['DB_NAME'],
+        'username' => $_ENV['DB_USER'] ?? 'root',
+        'password' => $_ENV['DB_PASS'] ?? '',
+        'charset' => 'utf8mb4',
+        'port' => (int)($_ENV['DB_PORT'] ?? 3306),
+    ]);
+    
+    Model::setDB($db);
+    
+    // Bind database to container
+    $app->getContainer()->singleton(Medoo::class, fn() => $db);
+}
 
-Model::setDB($db);
-
-// Load plugin system (MOVE THIS HERE)
-//use OOPress\Core\Plugin\PluginManager;
-
-$pluginManager = new PluginManager();
-$pluginManager->loadActivePluginsFromDB();
-
-// Store in container
-$app->getContainer()->singleton(PluginManager::class, fn() => $pluginManager);
-
-// Bind database to container
-$app->getContainer()->singleton(Medoo::class, fn() => $db);
+// Load plugin system only if database is available
+if (file_exists(__DIR__ . '/../.env') && isset($_ENV['DB_HOST']) && isset($_ENV['DB_NAME'])) {
+    $pluginManager = new PluginManager();
+    $pluginManager->loadActivePluginsFromDB();
+    
+    // Store in container
+    $app->getContainer()->singleton(PluginManager::class, fn() => $pluginManager);
+}
 
 // Initialize session and auth
 $session = new Session();

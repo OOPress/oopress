@@ -8,7 +8,7 @@
     
     <div class="form-group">
         <p><strong>Admin Login:</strong></p>
-        <p>Username: <?= htmlspecialchars($_SESSION['install']['admin_username'] ?? 'admin') ?></p>
+        <p>Username: <?= htmlspecialchars($admin_username ?? 'admin') ?></p>
         <p>Password: (the password you created)</p>
     </div>
     

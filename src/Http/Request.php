@@ -43,6 +43,14 @@ class Request
     }
     
     /**
+     * Get full request URI
+     */
+    public function uri(): string
+    {
+        return $this->server['REQUEST_URI'] ?? '/';
+    }
+    
+    /**
      * Get input value from GET or POST
      */
     public function input(string $key, $default = null): mixed
